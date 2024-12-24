@@ -18,7 +18,7 @@ class GeneradorTokens {
     constructor(){}
     
     creadorToken(estadoAceptacion, lexema, fila, columna){
-        const tipoToken = this.obtenerToken(estadoAceptacion);
+        const tipoToken = this.obtenerToken(estadoAceptacion, lexema);
         return new Token(tipoToken, lexema, fila, columna);
     }
 
@@ -26,16 +26,16 @@ class GeneradorTokens {
         return new ErrorLexico("ERROR_LEXICO", lexema, fila, columna, estadoError, caracterError);
     }
 
-    obtenerToken(estadoAceptacion) {
+    obtenerToken(estadoAceptacion, lexema) {
         switch (estadoAceptacion) {
             case "qPRESERVADA":
-                return "PALABRA RESERVADA";
+                return "PALABRA_RESERVADA";
             case "qCONFIGURACION RESERVADA":
                 return "CONFIGURACION";
             case "qOARITMETICA":
-                return "OPERACION ARITMETICA";
+                return "OPERACION_ARITMETICA";
             case "qOTRIGONOMETRICA":
-                return "OPERACION TRIGONOMETRICA";
+                return "OPERACION_TRIGONOMETRICA";
             case "qNDECIMAL":
                 return "NUMERO_DECIMAL";
             case "qNENTERO":
@@ -43,13 +43,13 @@ class GeneradorTokens {
             case "qOPERACION":
                 return "OPERACION";
             case "qSIMBOLO":
-                return "SIMBOLO DELIMITADOR";
+                return "SIMBOLO_DELIMITADOR";
             case "qIDVALOR1":
-                return "IDENTIFICADOR VALOR 1";
+                return "ID_VALOR 1";
             case "qIDVALOR2":
-                return "IDENTIFICADOR VALOR 2";
+                return "ID_VALOR 2";
             case "qTEXTO":
-                return "PALABRA RESERVADA";
+                return "PALABRA_RESERVADA";
             case "qFORMA":
                 return "CONFIGURACION";
             case "qFUENTE":
@@ -57,21 +57,36 @@ class GeneradorTokens {
             case "qFONDO":
                 return "CONFIGURACION";
             case "qCOLOR":
-                return "COLOR NODO";
+                return "COLOR_HEX";
             case "qFORMAVAL":
-                return "FORMA NODO";
+                return "FORMA_NODO";
             case "qCOLORF":
-                return "COLOR TEXTO";
+                return "COLOR_TEXTO";
             case "qVALORNUMERICO":
-                return "VALOR NUMERICO"; 
+                return "VALOR_NUMERICO"; 
             case "qASIGNACION":
-                return " OPERADOR ASIGNACION";
+                return " OPERADOR_ASIGNACION";
             case "qCOSIMPLE":
-                return "COMENTARIO SIMPLE";
+                return "COMENTARIO_SIMPLE";
             case "qTIPOFUENTE":
-                return "TIPO FUENTE";
+                return "TIPO_FUENTE";
             case "qCADENA":
-                return "CADENA JEJEJ";
+                return "CADENA";
+            case "qFUNCION":
+                return "FUNCION";    
+            case "qNOMBRE":
+                return "ID_OPERACION";
+            case "qCONFIGURACION":
+                switch (lexema) {
+                    case "operaciones":
+                        return "OPERACIONES"
+                    case "configuracioneslex":
+                        return "CONFIG_LEX"
+                    case "configuracionesparser":
+                        return "CONFIG_PARSER"
+                    default:
+                        return "NO_SE_DEFINIO_XD";
+                }
             default:
                 return "NO_SE_DEFINIO_XD";
         }

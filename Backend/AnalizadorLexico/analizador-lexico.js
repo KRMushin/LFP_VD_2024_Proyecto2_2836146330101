@@ -28,7 +28,9 @@ class AnalizadorLexico {
             'qASIGNACION',
             'qNOMBRE',
             'qCOSIMPLE',
-            'qTIPOFUENTE'
+            'qTIPOFUENTE',
+            'qFUNCION',
+            'qCOCOMPLEJO'
         ];
 
         this.delimitadores = ['(', ')', '[', ']', ';', ':', '{', '}', ',', '\n', ' '];
@@ -79,6 +81,48 @@ class AnalizadorLexico {
                 tokenActual = "";
                 fila++;
                 columna = 0;
+                continue;
+            }
+            if (siguienteEstado === 'qCOCOMPLEJO') {
+                let comentarioComplejo = "/";
+                const columnaEncontrado = columna;
+                const filaEncontrado = fila;
+                let comentarioValido = false; 
+                let inicioColumna = columna;
+            
+                while (i < cadena.length) {
+                    const char = cadena[i];
+                    comentarioComplejo += char;
+                    if (char === '\n') {
+                        fila++;
+                        columna = 0;
+                    } else {
+                        columna++;
+                    }
+            
+                    if (char === '*' && cadena[i + 1] === '/') {
+                        comentarioComplejo += '/'; 
+                        i++; 
+                        columna++;
+                        comentarioValido = true;
+                        break;
+                    }
+            
+                    i++;
+                }
+            
+                if (comentarioValido) {
+                    tokens.push(
+                        this.generadorTokens.creadorToken('qCOCOMPLEJO',comentarioComplejo.trim(),filaEncontrado,columnaEncontrado)
+                    );
+                } else {
+                    listaErrores.push(
+                        this.generadorTokens.creadorTokenError(comentarioComplejo.trim(),filaEncontrado,columnaEncontrado,'qCOCOMPLEJO',"Comentario complejo sin cierre")
+                    );
+                }
+            
+                estadoActual = "q0";
+                tokenActual = "";
                 continue;
             }
 

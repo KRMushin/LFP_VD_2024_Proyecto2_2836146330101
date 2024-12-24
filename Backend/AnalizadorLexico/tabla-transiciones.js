@@ -34,7 +34,7 @@ class TablaTransiciones {
             '=': "qASIGNACION",
 
             // palabras que no empiezan por comillas
-            o: 'q76' , c: 'q2', f: "q104", t: "q19",
+            o: 'q76' , c: 'q2', f: "q104", t: "q19", i: "q194", p: "q204", m: "q211", g: "q215",
 
 
             // comnetarios
@@ -49,7 +49,7 @@ class TablaTransiciones {
         // configuraciones parser y lex
         q2: { o: "q3" , i: "q127"},
         q3: { n: "q4" , s: "q15"},
-        q4: { f: "q5" },
+        q4: { f: "q5" , t: "q202"},
         q5: { i: "q6" },
         q6: { g: "q7" },
         q7: { u: "q8" },
@@ -160,7 +160,7 @@ class TablaTransiciones {
         q82: { o: "q83" },
         q83: { n: "q84" },
         q84: { '"': "qOPERACION" , e: "q85"},
-        q85: { s: "qPRESERVADA" },
+        q85: { s: "qCONFIGURACION" },
         // q86: { '"': "qPRESERVADA" },
 
         // valor 1
@@ -302,7 +302,7 @@ class TablaTransiciones {
 
         // comentario simple
 
-        q181: {'/': 'qCOSIMPLE'},
+        q181: {'/': 'qCOSIMPLE' , '*': 'qCOCOMPLEJO'},
 
         // colores hexadecimales
         
@@ -323,6 +323,49 @@ class TablaTransiciones {
         q190: { n: "q191" },
         q191: { t: "q192" },
         q192: { e: "qTIPOFUENTE" },
+
+
+        // transiciones para las funciones
+            // imprimir
+        q194: { m: "q195" },
+        q195: { p: "q196" },
+        q196: { r: "q197" },
+        q197: { i: "q198" },
+        q198: { m: "q199" },
+        q199: { i: "q201" },
+        q201: { r: "qFUNCION"},
+
+            //conteo
+        q202: { e: "q203" },    
+        q203: { o: "qFUNCION" },    
+
+            // promedio
+        q204: { r: "q205" },
+        q205: { o: "q206" },
+        q206: { m: "q207" },
+        q207: { e: "q208" },
+        q208: { d: "q209" },
+        q209: { i: "q210" },
+        q210: { o: "qFUNCION" },    
+            // max 
+        q211: { a: "q212" , i: "q213"},
+        q212: { x: "qFUNCION" },    
+            // min
+        q213: { n: "qFUNCION" },    
+            // generarReporte
+        q215: { e: "q216" },    
+        q216: { n: "q217" },
+        q217: { e: "q218" },
+        q218: { r: "q219" },
+        q219: { a: "q220" },
+        q220: { r: "q221" },
+        q221: { r: "q222" },
+        q222: { e: "q223" },
+        q223: { p: "q224" },
+        q224: { o: "q225" },
+        q225: { r: "q226" },
+        q226: { t: "q227" },
+        q227: { e: "qFUNCION" },
 
         // estados de aceptacion
         qPRESERVADA: {},
@@ -349,8 +392,9 @@ class TablaTransiciones {
        qASIGNACION: {},
        qNOMBRE: {},
        qCOSIMPLE: {},
-       qTIPOFUENTE: {}
-    
+       qTIPOFUENTE: {},
+       qFUNCION: {},
+       qCOCOMPLEJO: {}
     };
 }
 

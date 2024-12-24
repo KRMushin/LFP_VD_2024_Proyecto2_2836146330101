@@ -6,8 +6,8 @@ const app = express();
 const port = 5000;
 
 app.use(cors());
-app.use(express.json()); // Middleware para procesar JSON normalmente
-app.use(express.text({ type: '*/*' })); // Middleware para capturar texto bruto
+app.use(express.json()); 
+app.use(express.text({ type: '*/*' }));
 
 app.post('/analisis-lexico', (req, res) => {
     try {
@@ -16,7 +16,8 @@ app.post('/analisis-lexico', (req, res) => {
          const { tokens, listaErrores } = this.analizadorLexico.analizarEntrada(cadena);
          return res.json({ tokens, listaErrores });
     } catch (error) {
-        return res.json({ error: error.message });
+        console.error("Error en /analisis-lexico:", error); // Registro detallado en la consola
+        return res.status(500).json({ error: error.message, stack: error.stack });
     } 
 });
 
