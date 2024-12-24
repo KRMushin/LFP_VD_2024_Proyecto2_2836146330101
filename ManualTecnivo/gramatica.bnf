@@ -1,0 +1,100 @@
+<nlex-archivo> ::=<operaciones> "," <configuraciones> <funciones> <comentarios>
+
+<operaciones ::= OPERACIONES "=" <arreglo_operaciones>
+
+<arreglo_operaciones> ::= "[" <operacion> { "," <operacion> } "]"
+
+<operacion> ::= "{" 
+                    OPERACION ":" ( OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA ) "," 
+                    
+                    ID_OPERACION ":" CADENA,
+                    
+                    VALOR_1 ":" ( VALOR_NUMERICO | <operacion_anidada>)
+                    
+                    [ "," VALOR2 ":"  ( VALOR_NUMERICO | <operacion_anidada>)] 
+                    
+                 "}"
+
+<operacion_anidada> ::= "[" "{"
+                         
+                         OPERACION ":" ( OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA ) ","
+                         VALOR1 ":" (VALOR_NUMERICO | <operacion_anidada> )
+                         [ "," VALOR2 ":" ( VALOR_NUMERICO | <operacion_anidada>)]
+                  
+                   "}" "]"
+
+Terminales
+
+Palabras clave:
+
+      OPERACIONES
+      OPERACION
+      OPERACION_ARITMETICA
+      OPERACION_TRIGONOMETRICA
+      ID_OPERACION
+      VALOR_1
+      VALOR2     
+
+Símbolos literales:
+
+= (asignación)
+: (separador de clave-valor)
+, (coma, separador de elementos)
+[ y ] (para arreglos)
+{ y } (para objetos)
+
+Tipos de datos:
+
+CADENA (cadena de texto)
+VALOR_NUMERICO (número entero o decimal)
+No terminales
+Son los componentes que pueden descomponerse en otros no terminales o terminales:
+
+<nlex-archivo>: Representa el archivo general.
+<operaciones>: Define la sección de operaciones.
+<arreglo_operaciones>: Lista de operaciones entre corchetes.
+<operacion>: Describe una operación individual.
+<operacion_anidada>: Representa operaciones anidadas dentro de otra operación.
+Producciones
+Son las reglas que describen cómo se descomponen los no terminales. Aquí están las producciones completas:
+
+<nlex-archivo> ::= <operaciones> "," <configuraciones> <funciones> <comentarios>
+
+<operaciones> ::= OPERACIONES "=" <arreglo_operaciones>
+
+<arreglo_operaciones> ::= [ <operacion> { , <operacion> } ]
+
+<operacion> ::= {
+OPERACION : (OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA) ,
+ID_OPERACION : CADENA ,
+VALOR_1 : (VALOR_NUMERICO | <operacion_anidada>)
+[ , VALOR2 : (VALOR_NUMERICO | <operacion_anidada>)]
+}
+
+<operacion_anidada> ::= [ {
+OPERACION : (OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA) ,
+VALOR1 : (VALOR_NUMERICO | <operacion_anidada>)
+[ , VALOR2 : (VALOR_NUMERICO | <operacion_anidada>)]
+} ]
+                        
+
+
+
+
+if x < 10;
+      while y > 0;
+            y = y - 1
+
+N
+
+T
+P
+S
+
+
+..CADA NO TERMINAL ES UN NODO PADRE
+...TODOS LOS NODOS HOJA SON TOKENS
+...LOS DEMAS SON NO LOS QUE NO  SON HOJAS TERMINALES
+
+
+ESTUDIAR LOS DE PILA CEROTE
