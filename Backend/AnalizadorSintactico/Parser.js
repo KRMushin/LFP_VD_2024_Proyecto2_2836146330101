@@ -215,6 +215,7 @@ class Parser {
             if (!["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
                 this.registrarError("Operación inválida: tipo de operación no reconocido");
             }
+            this.constructorOperacion += this.tokenActual().lexema;
             this.siguienteToken();
             this.esperar("SIMBOLO_DELIMITADOR", ",");
 
