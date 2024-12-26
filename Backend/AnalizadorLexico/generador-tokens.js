@@ -45,9 +45,9 @@ class GeneradorTokens {
             case "qSIMBOLO":
                 return "SIMBOLO_DELIMITADOR";
             case "qIDVALOR1":
-                return "ID_VALOR 1";
+                return "ID_VALOR_1";
             case "qIDVALOR2":
-                return "ID_VALOR 2";
+                return "ID_VALOR_2";
             case "qTEXTO":
                 return "PALABRA_RESERVADA";
             case "qFORMA":
@@ -65,7 +65,7 @@ class GeneradorTokens {
             case "qVALORNUMERICO":
                 return "VALOR_NUMERICO"; 
             case "qASIGNACION":
-                return " OPERADOR_ASIGNACION";
+                return "OPERADOR_ASIGNACION";
             case "qCOSIMPLE":
                 return "COMENTARIO_SIMPLE";
             case "qTIPOFUENTE":
