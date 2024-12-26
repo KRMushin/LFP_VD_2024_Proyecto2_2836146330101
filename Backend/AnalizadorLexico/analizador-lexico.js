@@ -245,6 +245,7 @@ class AnalizadorLexico {
             listaErrores.push(this.generadorTokens.creadorTokenError(tokenActual, fila, columna - tokenActual.length, estadoActual, cadena[cadena.length - 1]));
         }
 
+        tokens.push(this.generadorTokens.creadorToken('EOF', 'EOF', -1, -1));
         return { tokens, listaErrores };
     }
 

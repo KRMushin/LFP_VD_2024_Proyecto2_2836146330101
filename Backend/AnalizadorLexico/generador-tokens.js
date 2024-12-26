@@ -69,7 +69,7 @@ class GeneradorTokens {
             case "qCOSIMPLE":
                 return "COMENTARIO_SIMPLE";
             case "qTIPOFUENTE":
-                return "TIPO_FUENTE";
+                return "CONFIGURACION";
             case "qCADENA":
                 return "CADENA";
             case "qFUNCION":
@@ -87,6 +87,8 @@ class GeneradorTokens {
                     default:
                         return "NO_SE_DEFINIO_XD";
                 }
+            case "EOF":
+                return "EOF";    
             default:
                 return "NO_SE_DEFINIO_XD";
         }

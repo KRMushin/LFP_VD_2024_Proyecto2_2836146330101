@@ -38,16 +38,16 @@ Operaciones = [
 
 
 ConfiguracionesLex = [
-    fondo: "#000000",
+    fondo: "#111111",
     fuente: "#FFFFFF",
-    forma: "circle",
-    tipoFuente: "Times-Roman"
+    forma: "diamond",
+    tipoFuente: "Arial"
 ]
 
 ConfiguracionesParser = [
     fondo: "#FF3F00",
     fuente: "#000000",
-    forma: "box",
+    forma: "circle",
     tipoFuente: "Arial"
 ]
 

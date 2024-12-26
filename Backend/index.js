@@ -19,7 +19,12 @@ app.post('/analisis-lexico', (req, res) => {
          this.parser.parse();
          console.log(this.parser.erroresSintacticos);
          console.log('numero de errores sintacticos: ', this.parser.erroresSintacticos.length);
+         console.log('numero de errores sintacticos: ', this.parser.erroresSintacticosConfigs.length);
          console.log('operacion encontradas' , this.parser.tablaOperaciones.operacionesPadre);
+         console.log('configuraciones' , this.parser.configuracionesLex);
+         console.log('configuraciones' , this.parser.erroresSintacticosConfigs);
+         console.log('configuraciones parse' , this.parser.configuracionesParse);
+         console.log('funciones' , this.parser.FuncionesGuardadas);
          return res.json({ tokens, listaErrores });
     } catch (error) {
         console.error("Error en /analisis-lexico:", error); // Registro detallado en la consola
