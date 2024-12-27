@@ -13,7 +13,6 @@ const FuncionesReconocidas = {
     generarreporte: (...params) => console.log(`Generando reporte con ${params.join(", ")}`),
 };
 
-
 class Parser {
 
     constructor(tokens) {
@@ -21,6 +20,8 @@ class Parser {
         this.indice = 0;
         this.erroresSintacticos = [];
         this.erroresSintacticosConfigs = [];
+        this.erroresSintacticosFunc = [];
+
         this.constructorOperacion = "";
         this.tablaOperaciones = new TablaOperaciones();
         this.FuncionesGuardadas = [];
@@ -47,7 +48,7 @@ class Parser {
 
     esperar(tipo, lexema) {
         const token = this.tokenActual();
-    
+
         if (token?.tipo !== tipo) { 
             this.registrarError(`Se esperaba un token de tipo '${tipo}', pero se encontró '${token?.tipo}'`);
             return;
@@ -71,33 +72,27 @@ class Parser {
         const token = this.tokenActual();
         const error = `Error en línea ${token?.fila ?? "desconocida"}, columna ${token?.columna ?? "desconocida"}: ${mensaje}`;
         this.erroresSintacticos.push(new ErrorSintactico(error));
-        this.siguienteToken();
     }
     registrarErrorConfig(mensaje) {
         const token = this.tokenActual();
         const error = `Error en línea ${token?.fila ?? "desconocida"}, columna ${token?.columna ?? "desconocida"}: ${mensaje}`;
         this.erroresSintacticosConfigs.push(new ErrorSintactico(error));
-        this.siguienteToken();
     }
 
-    sincronizar(conjuntoRecuperacion) {
-        while (
-            this.tokenActual() &&
-            !conjuntoRecuperacion.includes(this.tokenActual().lexema) &&
-            !conjuntoRecuperacion.includes(this.tokenActual().tipo)
-        ) {
-            this.siguienteToken();
-        }
+    registrarErrorFunc(mensaje) {
+        const token = this.tokenActual();
+        const error = `Error en línea ${token?.fila ?? "desconocida"}, columna ${token?.columna ?? "desconocida"}: ${mensaje}`;
+        this.erroresSintacticosFunc.push(new ErrorSintactico(error));
     }
 
     parse() {
-
-        while (this.tokenActual().tipo !== 'EOF') {
-            switch (this.tokenActual().tipo) {
+        
+        while (this.tokenActual()?.tipo !== 'EOF') {
+            switch (this.tokenActual()?.tipo) {
                 case "OPERACIONES":
                     this.analizarOperaciones();
                     break;
-                case "CONFIG_PARSE":
+                case "CONFIG_PARSER":
                     this.analizarConfiguracionesParse();
                     break;
                 case "CONFIG_LEX":
@@ -108,170 +103,210 @@ class Parser {
                     break;
                 default:
                     this.siguienteToken();
-                    this.parse();
                     break;
             }
         }
-            // if(this.tokenActual().tipo === 'EOF'){
-            //     return;
-            // }
-
-    }
-
-    analizarOperaciones() {
-
-        try {
-            this.siguienteToken();
-            this.esperar("OPERADOR_ASIGNACION"); 
-            this.esperar("SIMBOLO_DELIMITADOR" , "[");
-            this.analizarArregloOperaciones(); 
-        } catch (error) {
-            this.registrarError(error.message);
-        }
     }
     
+    analizarOperaciones() {
+        this.siguienteToken();
+        this.esperar("OPERADOR_ASIGNACION"); 
+        this.esperar("SIMBOLO_DELIMITADOR" , "[");
+        this.analizarArregloOperaciones(); 
+    }
     analizarArregloOperaciones() {
-        // si una operacion resulta en error aca se mete en el catch
-        
         this.analizarOperacion();
         if (this.tokenActual().lexema === ',' && this.Tokens[this.indice + 1] && this.Tokens[this.indice + 1].lexema === ']' ) {
-            this.siguienteToken();
-            this.siguienteToken();
-            this.parse();
+            return;
         }
         else if(this.tokenActual().lexema === ','){
             this.siguienteToken();
             this.analizarArregloOperaciones();
         }else if (this.tokenActual().lexema === ']') {
             this.siguienteToken();
-            this.parse();
+            return;
         }else{
             this.registrarError('Vaina que no existe');
         }
     }
 
     analizarOperacion() {
+        this.constructorOperacion = "";
+        let numeroErrores = 0;
+        const elementos = {}; 
+        
+        this.esperar("SIMBOLO_DELIMITADOR", "{");
 
-            this.constructorOperacion = "";
-            this.esperar("SIMBOLO_DELIMITADOR", "{");
-            this.esperar("OPERACION");
-            this.esperar("SIMBOLO_DELIMITADOR", ":");
-    
-            if (!["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
-                this.registrarError("Operación inválida: tipo de operación no reconocido");
-            }
-            this.constructorOperacion += this.tokenActual().lexema;
+        while (this.tokenActual()?.lexema !== "}") {
+
+            const clave = this.tokenActual()?.tipo;
+            this.constructorOperacion += this.tokenActual()?.lexema;
             this.siguienteToken();
-    
-            this.esperar("SIMBOLO_DELIMITADOR", ",");
-            this.esperar("ID_OPERACION");
-            this.esperar("SIMBOLO_DELIMITADOR",":");
-            this.esperar("CADENA");
-            this.esperar("SIMBOLO_DELIMITADOR",",");
-            this.esperar("ID_VALOR_1");
-            this.esperar("SIMBOLO_DELIMITADOR",":");
-
-            if (this.esTipo("VALOR_NUMERICO")) {
-                this.constructorOperacion += this.tokenActual().lexema;
-                this.siguienteToken();
+            this.esperar("SIMBOLO_DELIMITADOR", ":");
                 
-            }else if (this.tokenActual().lexema === "[") {
+            if (clave === "OPERACION" && ["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
+                elementos.operacion = this.tokenActual().lexema;
                 this.constructorOperacion += this.tokenActual().lexema;
-                this.siguienteToken();
-                this.analizarOperacionAnidada();
-            }else{
-                this.registrarError("Valor1 inválido");
+            } else if (clave === "ID_OPERACION" && this.esTipo("CADENA")) {
+                elementos.nombre = this.tokenActual().lexema;
+                this.constructorOperacion += this.tokenActual().lexema;
+            } else if (clave === "ID_VALOR_1" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
+                elementos.valor1 = this.tokenActual().lexema;
+                this.constructorOperacion += this.tokenActual().lexema;
+                
+                if (this.tokenActual().lexema === "[") {
+                    this.siguienteToken();
+                    if (!this.analizarOperacionAnidada()) {
+                        numeroErrores++;
+                    }
+                }
+                
+            } else if (clave === "ID_VALOR_2" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
+                elementos.valor2 = this.tokenActual().lexema;
+                this.constructorOperacion += this.tokenActual().lexema;
+                if (this.tokenActual().lexema === "[") {
+                    this.siguienteToken();
+                    //aca si devuelve false es porque no obtuvo ninguna buena respuesta aumentar los errores
+                    if (!this.analizarOperacionAnidada()) {
+                        numeroErrores++;
+                    }
+                }
+            } else {
+                numeroErrores++;
+                this.registrarError(`Error en una de las palabras reservadas: ${clave}`);
             }
+            
+            this.siguienteToken(); 
 
-
-            if(this.tokenActual().lexema === "," ){
+            if (this.tokenActual()?.lexema === ",") {
                 this.constructorOperacion += this.tokenActual().lexema;
                 this.siguienteToken(); 
-                this.esperar("ID_VALOR_2");
-                this.esperar("SIMBOLO_DELIMITADOR", ":");
-        
-                if (this.esTipo("VALOR_NUMERICO")) {
-                    this.constructorOperacion += this.tokenActual().lexema;
-                    this.siguienteToken();
-    
-                }else if (this.tokenActual().lexema === "[") {
-                    this.constructorOperacion += this.tokenActual().lexema;
-                    this.siguienteToken();
-                    this.analizarOperacionAnidada();
-                }else{
-                    this.registrarError("Valor1 inválido");
-                }
+            }else if (this.tokenActual()?.lexema === "}") {
+                break;
+            }else if (this.tokenActual()?.lexema === "{") {
+                numeroErrores++;
+                this.registrarError(" posiblemente no se cerro correctamente la operacion :D");
+                break;
             }
-            this.esperar("SIMBOLO_DELIMITADOR", "}");
-            this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
+            else{
+                numeroErrores++;
+                this.registrarError("Se esperaba una coma o un cierre de llave");
+                this.siguienteToken();
+            }
+
+        }
+        this.esperar("SIMBOLO_DELIMITADOR", "}");
+    
+        if (!elementos.operacion || !elementos.nombre || !elementos.valor1) {
+            numeroErrores++;
+            this.registrarError("Faltan elementos obligatorios para que la operacion sea correcta :D");
+        }
+
+        if (numeroErrores <= 0) {
+                console.log('operacion valida' , elementos)
+                this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
+        }
     }
 
     analizarOperacionAnidada() {
 
+            const elementosAnidados = {};
+            let numeroErrores = 0;
+
             this.esperar("SIMBOLO_DELIMITADOR", "{");
-            this.esperar("OPERACION");
-            this.esperar("SIMBOLO_DELIMITADOR", ":");
-
-            if (!["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
-                this.registrarError("Operación inválida: tipo de operación no reconocido");
-            }
-            this.constructorOperacion += this.tokenActual().lexema;
-            this.siguienteToken();
-            this.esperar("SIMBOLO_DELIMITADOR", ",");
-
-            if (this.tokenActual().tipo === "ID_OPERACION") {
-                this.registrarError("Las operaciones anidadas no deben contener un nombre");
-            }
-
-            this.esperar("ID_VALOR_1");
-            this.esperar("SIMBOLO_DELIMITADOR", ":");
-
-            if (this.esTipo("VALOR_NUMERICO")) {
+            while (this.tokenActual()?.lexema !== "}") {
+                
+                const reservada = this.tokenActual().tipo;
                 this.constructorOperacion += this.tokenActual().lexema;
                 this.siguienteToken();
-            }else if (this.tokenActual().lexema === "[") {
-                this.constructorOperacion += this.tokenActual().lexema;
-                this.siguienteToken();
-                this.analizarOperacionAnidada();
-            }else{
-                this.registrarError("Valor1 inválido");
-            }
 
-            if(this.tokenActual().lexema === "," ){
-                this.constructorOperacion += this.tokenActual().lexema;
-                this.siguienteToken(); 
-                this.esperar("ID_VALOR_2");
                 this.esperar("SIMBOLO_DELIMITADOR", ":");
-        
-                if (this.esTipo("VALOR_NUMERICO")) {
+
+                if (reservada === "OPERACION" && ["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
+                    elementosAnidados.operacion = this.tokenActual().lexema;
                     this.constructorOperacion += this.tokenActual().lexema;
-                    this.siguienteToken();
-    
-                }else if (this.tokenActual().lexema === "[") {
+                }else if (reservada === "ID_VALOR_1" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
+                    elementosAnidados.valor1 = this.tokenActual().lexema;
                     this.constructorOperacion += this.tokenActual().lexema;
-                    this.siguienteToken();
-                    this.analizarOperacionAnidada();
+                    if (this.tokenActual().lexema === "[") {
+                        this.siguienteToken();
+                        if (!this.analizarOperacionAnidada()) {
+                            numeroErrores++;
+                        }
+                    }
+                }else if (reservada === "ID_VALOR_2" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
+                    elementosAnidados.valor2 = this.tokenActual().lexema;
+                    this.constructorOperacion += this.tokenActual().lexema;
+                    if (this.tokenActual().lexema === "[") {
+                        this.siguienteToken();
+                        if (!this.analizarOperacionAnidada()) {
+                            numeroErrores++;
+                        }
+                    }
                 }else{
-                    this.registrarError("Valor1 inválido");
-                }
+                    this.numeroErrores++;
+                    this.registrarError("Error en una de las palabras reservadas");
+                }    
+
+
+                this.siguienteToken(); 
+
+                    if (this.tokenActual()?.lexema === ",") {
+                        this.constructorOperacion += this.tokenActual().lexema;
+                        this.siguienteToken(); 
+                    }else if (this.tokenActual()?.lexema === "}") {
+                        break;
+                    }else if (this.tokenActual()?.lexema === "{") {
+                        numeroErrores++;
+                        this.registrarError(" posiblemente no se cerro correctamente la operacion :D");
+                        break;
+                    }
+                    else{
+                        numeroErrores++;
+                        this.registrarError("Se esperaba una coma o un cierre de llave");
+                        break;
+                    }
             }
 
             this.esperar("SIMBOLO_DELIMITADOR", "}");
-            this.esperar("SIMBOLO_DELIMITADOR", "]");
-    }
+            // se maneja aca para no desincronizar con la operacion padre :D
+            if (numeroErrores <= 0) {
+                return true;
+
+            }else if(numeroErrores > 0){
+                return false;
+            }
+
+            if (this.tokenActual()?.lexema !== "]") {
+                numeroErrores++;
+                this.registrarError("Se esperaba un cierre de corchete");
+            }else{
+                this.constructorOperacion += this.tokenActual().lexema;
+            }
     
+            if (!elementosAnidados.operacion || !elementosAnidados.valor1) {
+                numeroErrores++;
+                this.registrarError("Faltan elementos obligatorios para que la operacion sea correcta :D");
+                return false;
+            }
+            
+            if (numeroErrores <= 0) {
+                return true;
+
+            }else if(numeroErrores > 0){
+                return false;
+            }
+
+    }
     /*
         AREA DE CONFIGURACIONES PARA LAS FORMAS DEL GRAPHVIZ :3
     */
     analizarConfiguracionesLex() {
         this.analizarArregloConfiguraciones("LEX");
     }
-        
     analizarConfiguracionesParse() {
         this.analizarArregloConfiguraciones("PARSE");
     }
-        
-
     analizarArregloConfiguraciones(modoConfigs) {
         this.siguienteToken(); 
         this.esperarConfig("OPERADOR_ASIGNACION")
@@ -281,13 +316,11 @@ class Parser {
     }
     a(modoConfigs){
         this.analizarConfiguraciones(modoConfigs);
-        console.log(this.tokenActual(), 'depura');
         if (this.tokenActual()?.lexema === ",") {
             this.siguienteToken();
             this.a(modoConfigs);
         }
     }
-
     analizarConfiguraciones(modoConfigs) {
         const nombreConfiguracion = this.tokenActual()?.lexema;
 
@@ -323,7 +356,6 @@ class Parser {
             }
         };
     }
-
     actualizarConfiguraciones(tabla, token, lexema) {
         switch (token) {
             case "fondo":
@@ -376,54 +408,123 @@ class Parser {
         this.siguienteToken();
         return true;
     }
+    /*
+        AREA DE ANALIZR FUNCIONES JUNTO CON SUS PARAMETROS
+    */
+        analizarFunciones() {
+            const nombreFuncion = this.tokenActual()?.lexema;
+            const fila = this.tokenActual()?.fila;
+            const columna = this.tokenActual()?.columna;
+        
+            this.esperarFunc("FUNCION");
+            this.esperarFunc("SIMBOLO_DELIMITADOR", "(");
+        
+            const parametros = this.analizarParametros([], nombreFuncion);
+        
+            this.esperarFunc("SIMBOLO_DELIMITADOR", ")");
+        
+            if (parametros === null) {
+                return;
+            }
+        
+            if (FuncionesReconocidas[nombreFuncion]) {
+                FuncionesReconocidas[nombreFuncion](...parametros);
+        
+                this.FuncionesGuardadas.push({
+                    nombre: nombreFuncion,
+                    parametros,
+                    ubicacion: { fila, columna },
+                });
+            } else {
+                this.registrarErrorFunc(`Función desconocida: ${nombreFuncion}`);
+            }
+        }
+        
+        analizarParametros(lista = [], nombreFuncion = "") {
+            switch (nombreFuncion) {
+                case "max":
+                case "min":
+                case "promedio":
+                    if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
+                        return lista.length > 0 ? lista : null;
+                    }
+        
+                    if (["OPERACION_ARITMETICA", "FUNCION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
+                        lista.push(this.tokenActual()?.lexema);
+                        this.siguienteToken();
+                    } else if (this.tokenActual()?.lexema === ",") {
+                        this.siguienteToken();
+                    } else {
+                        this.registrarErrorFunc(`Parámetro no válido para la función ${nombreFuncion}. Se esperaba OPERACION_ARITMETICA o FUNCION_TRIGONOMETRICA.`);
+                        return null;
+                    }
+                    break;
+        
+                case "conteo":
+                    if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
+                        return [];
+                    } else {
+                        this.registrarErrorFunc(`La función ${nombreFuncion} no debe tener parámetros.`);
+                        return null;
+                    }
+        
+                case "generarreporte":
+                    if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
+                        return lista.length > 0 && lista.length <= 2 ? lista : null; 
+                    }
+                    if (this.tokenActual()?.tipo === "CADENA") {
+                        lista.push(this.tokenActual()?.lexema);
+                        this.siguienteToken();
+                    } else if (this.tokenActual()?.lexema === ",") {
+                        this.siguienteToken();
+                    } else {
+                        this.registrarErrorFunc(`Parámetro no válido para la función ${nombreFuncion}. Se esperaba CADENA.`);
+                        return null;
+                    }
+                    break;
+        
+                case "imprimir":
+                    if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
+                        return lista.length === 1 ? lista : null; 
+                    }
+        
+                    if (this.tokenActual()?.tipo === "CADENA") {
+                        lista.push(this.tokenActual()?.lexema);
+                        this.siguienteToken();
+                    } else {
+                        this.registrarErrorFunc(`La función ${nombreFuncion} solo acepta un parámetro de tipo CADENA.`);
+                        return null;
+                    }
+                    break;
+        
+                default:
+                    this.registrarErrorFunc(`Función desconocida o parámetros no válidos: ${nombreFuncion}`);
+                    return null;
+            }
+        
+            return this.analizarParametros(lista, nombreFuncion);
+        }
 
-    analizarFunciones() {
-        const nombreFuncion = this.tokenActual()?.lexema;
-        const fila = this.tokenActual()?.fila;
-        const columna = this.tokenActual()?.columna;
+        esperarFunc(tipo, lexema) {
+            const token = this.tokenActual();
     
-        this.esperar("FUNCION");
-        this.esperar("SIMBOLO_DELIMITADOR", "(");
-    
-        const parametros = this.analizarParametros();
-        this.esperar("SIMBOLO_DELIMITADOR", ")");
-    
-        if (FuncionesReconocidas[nombreFuncion]) {
-            FuncionesReconocidas[nombreFuncion](...parametros);
-    
-            this.FuncionesGuardadas.push({
-                nombre: nombreFuncion,
-                parametros,
-                ubicacion: { fila, columna }
-            });
-        } else {
-            this.registrarError(`Función desconocida: ${nombreFuncion}`);
-        }
-    }
-    
-    
-    analizarParametros(lista = []) {
-        if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
-            return lista;
-        }
-    
-        if (["CADENA", "OPERACION_ARITMETICA", "ID"].includes(this.tokenActual()?.tipo)) {
-            lista.push(this.tokenActual()?.lexema);
+            if (token?.tipo !== tipo) { 
+                this.registrarErrorFunc(`Se esperaba un token de tipo '${tipo}', pero se encontró '${token?.tipo}'`);
+                return;
+            }
+            
+            if (lexema !== undefined && token?.lexema !== lexema) {
+                this.registrarErrorFunc(`Se esperaba un lexema '${lexema}', pero se encontró '${token?.lexema}'`);
+                return;
+            }
+            
+            if (!token) {
+                this.registrarErrorFunc(`Se esperaba un token de tipo '${tipo}', pero se encontró fin de archivo`);
+                return;
+            }
+            
             this.siguienteToken();
-        } else if (this.tokenActual()?.lexema === ",") {
-            this.siguienteToken();
-        } else {
-            this.registrarError("Parámetro no válido en la función");
-            return lista;
         }
-    
-        return this.analizarParametros(lista);
-    }
-    
-    
-    
-
-}
+    }        
 
 module.exports = Parser;
-

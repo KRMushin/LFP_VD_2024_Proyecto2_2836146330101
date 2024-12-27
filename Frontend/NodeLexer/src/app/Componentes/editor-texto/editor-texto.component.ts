@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { AnalizadorLexico } from '../../AnalizadorLexico/analizador-lexico';
-import Token from '../../AnalizadorLexico/token';
-import ErrorLexico from '../../AnalizadorLexico/error-lexico';
+import { ApiRutasService } from '../../api-rutas.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-editor-texto',
@@ -12,36 +11,37 @@ import ErrorLexico from '../../AnalizadorLexico/error-lexico';
 })
 export class EditorTextoComponent {
 
-  private lexer: AnalizadorLexico;
 
   @ViewChild('codeArea') areaTexto!: ElementRef<HTMLTextAreaElement>;
 
-  constructor() { 
-    this.lexer = new AnalizadorLexico();
-  }
+  tokens: any[] = [];
+  listaErrores: any[] = [];
+  json: any = {};
 
-
+  constructor(private api: ApiRutasService) {}
+  
   fila: number = 1;
   columna: number = 1;
 
   archivoAbierto: File | null = null;
 
-  public analizar(): Token[] {
-    const resultado = this.lexer.analizarEntrada(this.areaTexto.nativeElement.value);
-    
-    for (let index = 0; index < resultado.tokens.length; index++) {
-      const token = resultado.tokens[index];
-      console.log(`Token: ${token.tipo}, Lexema: ${token.lexema}, Fila: ${token.fila}, Columna: ${token.columna}`);
+  public analizar() {
+    const codigo = this.areaTexto.nativeElement.value;
+
+    if (!codigo) {
+      console.error('No se pudo obtener el código del área de texto.');
+      return;
     }
 
-    for (let index = 0; index < resultado.listaErrores.length; index++) {
-      const error: ErrorLexico = resultado.listaErrores[index];
-      console.error(`Error: ${error.tipo}, Descripción: ${error.lexema}, Fila: ${error.fila} , Columna: ${error.columna}`);
-    }
-    
-    return resultado.tokens;
+    this.api.obtenerTokensYJson(codigo).subscribe(
+      (data: any) => {
+        this.tokens = data.tokens || []; // Almacenar tokens
+        this.listaErrores = data.listaErrores || []; // Almacenar errores
 
-    
+        console.log('Tokens:', this.tokens);
+        console.log('Errores:', this.listaErrores);
+      },
+    );
   }
 
   /*

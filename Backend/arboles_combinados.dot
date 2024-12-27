@@ -1,0 +1,17 @@
+digraph G {
+    rankdir=TB;
+    node [shape=box, fontname="#000000", style=filled, fillcolor="#f3ff00"];
+    edge [color=black];
+    subgraph cluster_0 {
+        label="Operacion 1";
+    "nodo_1ht3km" [label="undefined\nResultado: 0", shape=box, fillcolor="#f3ff00", fontcolor="#000000", style=filled];
+    }
+    subgraph cluster_1 {
+        label="Operacion 2";
+    "nodo_v3cjm4" [label="undefined\nResultado: 0", shape=box, fillcolor="#f3ff00", fontcolor="#000000", style=filled];
+    }
+    subgraph cluster_2 {
+        label="Operacion 3";
+    "nodo_0wrqz" [label="undefined\nResultado: 0", shape=box, fillcolor="#f3ff00", fontcolor="#000000", style=filled];
+    }
+}

@@ -13,7 +13,13 @@ class AnalizadorOperaciones {
 
     analizarOperaciones(textoEntrada) {
         try {
-            let json = JSON.parse(textoEntrada);
+            let json;
+            try {
+                json = JSON.parse(textoEntrada); // Convertir string a JSON
+            } catch (error) {
+                console.error("Error al parsear la entrada como JSON:", error);
+                return;
+            }
             // aca se obtiene la tabla de operaciones ya llena
             const tablaOperaciones = this.llenarTablaOperaciones(json);
             // luego se calculan las operaciones de la tabla
@@ -34,8 +40,15 @@ class AnalizadorOperaciones {
     llenarTablaOperaciones(json) {
 
         let tablaOperaciones = new TablaOperaciones();
-        const operaciones = json.map(item => JSON.parse(item));
+        
+        
+        let operaciones = [];
 
+        if (Array.isArray(json)) {
+            operaciones = json;
+        } else {
+            operaciones = json.map(item => JSON.parse(item));
+        }
         operaciones.forEach(element => {
             let operacion = new Operacion(element.operacion);
 
