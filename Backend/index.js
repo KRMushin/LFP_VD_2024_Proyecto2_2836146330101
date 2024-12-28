@@ -39,8 +39,10 @@ app.post('/analisis-lexico', (req, res) => {
         const funciones = this.parser.FuncionesGuardadas;
 
         console.log('Errores de Operaciones:', erroresOperaciones);
-        console.log('Errores Sintácticos de Configuraciones:', erroresSintacticosConfigs);
-        console.log('Funciones Guardadas:', funciones);
+        // console.log('Errores Sintácticos de Configuraciones:', erroresSintacticosConfigs);
+        // console.log('Funciones Guardadas:', funciones);
+
+        console.log('lol0' , this.parser.generarDot());
 
         // console.log('funciones' , funciones);
 

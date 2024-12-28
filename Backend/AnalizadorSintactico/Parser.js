@@ -28,7 +28,21 @@ class Parser {
 
         this.configuracionesLex = new ConfiguracionesLex();
         this.configuracionesParse = new ConfiguracionesParse();
+    
+        this.dotBuffer = [];
+        this.nodeContador = 0;
+
+        this.operacionesNode = this.agregarNodo("\"ARREGLO_OPERACIONES\"");
+        this.operacionesConfigLex = this.agregarNodo("\"CONFIG_LEX\"");
+        this.operacionesConfigParse = this.agregarNodo("\"CONFIG_PARSE\"");
+        // this.operacionesFuncion = this.agregarNodo("\"FUNCION\"");
+
+        this.operacionesNode = this.agregarNodo("\"OPERACIONES\"");
+
+
     }
+
+    
 
     tokenActual() {
         return this.Tokens[this.indice];
@@ -85,17 +99,42 @@ class Parser {
         this.erroresSintacticosFunc.push(new ErrorSintactico(error));
     }
 
+    /*
+        METODOS PARA LOS NODOS
+    */
+    agregarNodo(label) {
+        const nodeId = `node${this.nodeContador++}`;
+        this.dotBuffer.push(`${nodeId} [label=${label}];`);
+        return nodeId;
+    }
+
+    agregarRelacion(parentId, childId) {
+        this.dotBuffer.push(`${parentId} -> ${childId};`);
+    }
+
+    generarDot() {
+        return `digraph G {\n${this.dotBuffer.join("\n")}\n}`;
+    }
+
+    /*
+        COMIENSO DEL SISTEMA PARSE
+    */
+
     parse() {
-        
+        const nodoRaiz = this.agregarNodo("\"NLEXER\"");
+
         while (this.tokenActual()?.tipo !== 'EOF') {
             switch (this.tokenActual()?.tipo) {
                 case "OPERACIONES":
+                this.agregarRelacion(nodoRaiz, this.operacionesNode);
                     this.analizarOperaciones();
                     break;
                 case "CONFIG_PARSER":
-                    this.analizarConfiguracionesParse();
-                    break;
+                this.agregarRelacion(nodoRaiz, this.operacionesConfigParse);    
+                this.analizarConfiguracionesParse();
+                break;
                 case "CONFIG_LEX":
+                    this.agregarRelacion(nodoRaiz, this.operacionesConfigLex);    
                     this.analizarConfiguracionesLex();
                     break;
                 case "FUNCION":
@@ -136,39 +175,55 @@ class Parser {
         const elementos = {}; 
         
         this.esperar("SIMBOLO_DELIMITADOR", "{");
+        // nodo
+        const operacionNode = this.agregarNodo("\"Operacion\"");
+        this.agregarRelacion(this.operacionesNode, operacionNode);
 
         while (this.tokenActual()?.lexema !== "}") {
 
             const clave = this.tokenActual()?.tipo;
+
             this.constructorOperacion += this.tokenActual()?.lexema;
             this.siguienteToken();
             this.esperar("SIMBOLO_DELIMITADOR", ":");
                 
             if (clave === "OPERACION" && ["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
-                elementos.operacion = this.tokenActual().lexema;
+                elementos.operacion = this.tokenActual().tipo;
                 this.constructorOperacion += this.tokenActual().lexema;
+
             } else if (clave === "ID_OPERACION" && this.esTipo("CADENA")) {
-                elementos.nombre = this.tokenActual().lexema;
+                elementos.nombre = this.tokenActual().tipo;
                 this.constructorOperacion += this.tokenActual().lexema;
+
             } else if (clave === "ID_VALOR_1" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
-                elementos.valor1 = this.tokenActual().lexema;
+                elementos.valor1 = this.tokenActual().tipo;
                 this.constructorOperacion += this.tokenActual().lexema;
                 
                 if (this.tokenActual().lexema === "[") {
                     this.siguienteToken();
-                    if (!this.analizarOperacionAnidada()) {
+                    const resultado = this.analizarOperacionAnidada();
+                    if (!resultado) {
                         numeroErrores++;
+                    }
+
+                    if (resultado) {
+                        elementos.valor1 = resultado;
                     }
                 }
                 
             } else if (clave === "ID_VALOR_2" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
-                elementos.valor2 = this.tokenActual().lexema;
+                elementos.valor2 = this.tokenActual().tipo;
                 this.constructorOperacion += this.tokenActual().lexema;
                 if (this.tokenActual().lexema === "[") {
                     this.siguienteToken();
                     //aca si devuelve false es porque no obtuvo ninguna buena respuesta aumentar los errores
-                    if (!this.analizarOperacionAnidada()) {
+                    const resultado = this.analizarOperacionAnidada();
+                    if (!resultado) {
                         numeroErrores++;
+                    }
+
+                    if (resultado) {
+                        elementos.valor2 = resultado;
                     }
                 }
             } else {
@@ -203,13 +258,23 @@ class Parser {
         }
 
         if (numeroErrores <= 0) {
-                console.log('operacion valida' , elementos)
-                this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
+            this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
+
+            // console.log('operacion valida elementos' , elementos )
+            // if (typeof elementos.valor1 === 'object' && elementos.valor1 !== null) {
+            //     console.log('valor 1 es un objeto' , elementos.valor1)
+            // }
+            try {
+                this.crearNodosDeOperacion(elementos, operacionNode);
+            } catch (error) {
+                this.registrarErrorFunc(`Error al crear nodos de operación`);
+            }
+
         }
     }
 
     analizarOperacionAnidada() {
-
+        
             const elementosAnidados = {};
             let numeroErrores = 0;
 
@@ -223,25 +288,44 @@ class Parser {
                 this.esperar("SIMBOLO_DELIMITADOR", ":");
 
                 if (reservada === "OPERACION" && ["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
-                    elementosAnidados.operacion = this.tokenActual().lexema;
+                    elementosAnidados.operacion = this.tokenActual().tipo;
                     this.constructorOperacion += this.tokenActual().lexema;
                 }else if (reservada === "ID_VALOR_1" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
-                    elementosAnidados.valor1 = this.tokenActual().lexema;
+                    elementosAnidados.valor1 = this.tokenActual().tipo;
                     this.constructorOperacion += this.tokenActual().lexema;
                     if (this.tokenActual().lexema === "[") {
                         this.siguienteToken();
-                        if (!this.analizarOperacionAnidada()) {
+                        
+                        const resultado = this.analizarOperacionAnidada();
+                        if (!resultado) {
                             numeroErrores++;
                         }
+
+                        if (resultado) {
+                            elementosAnidados.valor1 = resultado;
+                        }
+
+                        // if (!this.analizarOperacionAnidada()) {
+                        //     numeroErrores++;
+                        // }
                     }
                 }else if (reservada === "ID_VALOR_2" && (this.esTipo("VALOR_NUMERICO") || this.tokenActual().lexema === "[")) {
-                    elementosAnidados.valor2 = this.tokenActual().lexema;
+                    elementosAnidados.valor2 = this.tokenActual().tipo;
                     this.constructorOperacion += this.tokenActual().lexema;
                     if (this.tokenActual().lexema === "[") {
                         this.siguienteToken();
-                        if (!this.analizarOperacionAnidada()) {
+
+                        const resultado = this.analizarOperacionAnidada();
+                        if (!resultado) {
                             numeroErrores++;
                         }
+
+                        if (resultado) {
+                            elementosAnidados.valor2 = resultado;
+                        }
+                        // if (!this.analizarOperacionAnidada()) {
+                        //     numeroErrores++;
+                        // }
                     }
                 }else{
                     this.numeroErrores++;
@@ -271,7 +355,7 @@ class Parser {
             this.esperar("SIMBOLO_DELIMITADOR", "}");
             // se maneja aca para no desincronizar con la operacion padre :D
             if (numeroErrores <= 0) {
-                return true;
+                return elementosAnidados;
 
             }else if(numeroErrores > 0){
                 return false;
@@ -291,7 +375,7 @@ class Parser {
             }
             
             if (numeroErrores <= 0) {
-                return true;
+                return elementosAnidados;
 
             }else if(numeroErrores > 0){
                 return false;
@@ -299,36 +383,105 @@ class Parser {
 
     }
     /*
+        AREA DE CREACION DE NODOS
+    */
+        crearNodosDeOperacion(elementos, operacionNode) {
+            console.log("Operación válida:", elementos);
+            this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
+        
+            // Crear nodo para la operación principal
+            if (elementos.operacion) {
+                const operacionHijo = this.agregarNodo("OPERACION");
+                const operacionValor = this.agregarNodo(elementos.operacion);
+                this.agregarRelacion(operacionNode, operacionHijo);
+                this.agregarRelacion(operacionHijo, operacionValor);
+        
+                // Relacionar nombre, valor1 y valor2 con la operación
+                if (elementos.nombre) {
+                    const nombreNode = this.agregarNodo("ID_OPERACION");
+                    const nombreValorNode = this.agregarNodo(elementos.nombre);
+                    this.agregarRelacion(operacionHijo, nombreNode);
+                    this.agregarRelacion(nombreNode, nombreValorNode);
+                }
+        
+                if (elementos.valor1) {
+                    const valor1Node = this.agregarNodo("ID_VALOR_1");
+                    this.agregarRelacion(operacionHijo, valor1Node);
+        
+                    // Si valor1 es un objeto, procesar recursivamente
+                    if (typeof elementos.valor1 === "object") {
+                        this.crearNodosDeOperacion(elementos.valor1, valor1Node);
+                    } else {
+                        const valor1ValorNode = this.agregarNodo(elementos.valor1);
+                        this.agregarRelacion(valor1Node, valor1ValorNode);
+                    }
+                }
+        
+                if (elementos.valor2) {
+                    const valor2Node = this.agregarNodo("ID_VALOR_1");
+                    this.agregarRelacion(operacionHijo, valor2Node);
+        
+                    // Si valor2 es un objeto, procesar recursivamente
+                    if (typeof elementos.valor2 === "object") {
+                        this.crearNodosDeOperacion(elementos.valor2, valor2Node);
+                    } else {
+                        const valor2ValorNode = this.agregarNodo(elementos.valor2);
+                        this.agregarRelacion(valor2Node, valor2ValorNode);
+                    }
+                }
+            }
+        }
+        
+        
+
+    /*
         AREA DE CONFIGURACIONES PARA LAS FORMAS DEL GRAPHVIZ :3
     */
     analizarConfiguracionesLex() {
-        this.analizarArregloConfiguraciones("LEX");
+        this.analizarArregloConfiguraciones("LEX" , this.operacionesConfigLex);
     }
     analizarConfiguracionesParse() {
-        this.analizarArregloConfiguraciones("PARSE");
+        
+        this.analizarArregloConfiguraciones("PARSE",this.operacionesConfigParse);
     }
-    analizarArregloConfiguraciones(modoConfigs) {
+    analizarArregloConfiguraciones(modoConfigs, nodoPadre) {
         this.siguienteToken(); 
         this.esperarConfig("OPERADOR_ASIGNACION")
         this.esperarConfig("SIMBOLO_DELIMITADOR", "[");
-        this.a(modoConfigs);
+
+        const arrayNodo = this.agregarNodo("\"ARREGLO_CONFIGURACIONES\"");
+        this.agregarRelacion(nodoPadre, arrayNodo);
+
+        this.a(modoConfigs, arrayNodo);
+
         this.esperarConfig("SIMBOLO_DELIMITADOR", "]"); 
     }
-    a(modoConfigs){
-        this.analizarConfiguraciones(modoConfigs);
+    a(modoConfigs, arrayNodo){
+        const configuracionNodo = this.analizarConfiguraciones(modoConfigs);
+        this.agregarRelacion(arrayNodo, configuracionNodo);
+
         if (this.tokenActual()?.lexema === ",") {
+            const coma = this.agregarNodo("\"COMA\"");
+            this.agregarRelacion(arrayNodo, coma);
+            
             this.siguienteToken();
-            this.a(modoConfigs);
+            this.a(modoConfigs, arrayNodo);
         }
     }
     analizarConfiguraciones(modoConfigs) {
         const nombreConfiguracion = this.tokenActual()?.lexema;
-
+        
+        const configNode = this.agregarNodo("\"CONFIGURACION\"");
+        const nombreNode = this.agregarNodo(nombreConfiguracion);
+        this.agregarRelacion(configNode, nombreNode);
+        
         this.esperarConfig("CONFIGURACION");
 
         if (this.esperarConfig("SIMBOLO_DELIMITADOR", ":")) {
             const valor = this.tokenActual()?.lexema;
-            console.log(valor);
+            const valorNode = this.agregarNodo(valor);
+            this.agregarRelacion(configNode, valorNode);
+
             switch (nombreConfiguracion) {
                 case "forma":
                         if (this.esperarConfig("FORMA_NODO")) {
@@ -355,6 +508,8 @@ class Parser {
                     break;
             }
         };
+        return configNode;
+
     }
     actualizarConfiguraciones(tabla, token, lexema) {
         switch (token) {
@@ -405,6 +560,10 @@ class Parser {
             this.registrarErrorConfig(`Se esperaba un token de tipo '${tipo}', pero se encontró fin de archivo`);
             return false;
         }
+
+        // const tokenNode = this.agregarNodo(`"${token.lexema}"`);
+        // this.agregarRelacion(this.operacionesConfigLex, tokenNode);
+
         this.siguienteToken();
         return true;
     }
