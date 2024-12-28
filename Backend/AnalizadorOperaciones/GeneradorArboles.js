@@ -1,24 +1,31 @@
 const { exec } = require("child_process");
+const path = require("path");
 const fs = require("fs");
 
 class GeneradorArboles {
-    generarDot(tablaConfiguraciones, tablaOperaciones) {
+    constructor() {
+        this.ruta = "../Reportes/Arboles/ArbolOperaciones/";
+    }
+    generarDot(config, tablaOperaciones) {
         let dot = 'digraph G {\n';
         dot += `    rankdir=TB;\n`;
-        dot += `    node [shape=${tablaConfiguraciones.forma}, fontname="${tablaConfiguraciones.fuente}", style=filled, fillcolor="${tablaConfiguraciones.fondo}"];\n`;
+        dot += `    node [shape=${config.forma}, style=filled, fillcolor=${config.fondo}, fontcolor=${config.fuente}, fontname=${config.tipoFuente}];\n`;
         dot += `    edge [color=black];\n`;
 
         // aca se envia las tablas para poder generar el archivo dot jeje
-        dot += this.generarDotOperaciones(tablaConfiguraciones, tablaOperaciones);
+        dot += this.generarDotOperaciones(config, tablaOperaciones);
 
         dot += '}\n';
 
-        const rutaDOT = "arboles_combinados.dot";
+        if (!fs.existsSync(this.ruta)) {
+            fs.mkdirSync(this.ruta, { recursive: true });
+        }
+        
+        const rutaDOT = path.join(this.ruta, "arboles_combinados.dot");
+        const rutaImagen = path.join(this.ruta, "arboles_combinados.png");
 
         fs.writeFileSync(rutaDOT, dot, "utf8");
         console.log(`El archivo se genero bien en la ruta: ${rutaDOT}`);
-
-        const rutaImagen = "arboles_combinados.png";
         
         exec(`dot -Tpng ${rutaDOT} -o ${rutaImagen}`, (error, stdout, stderr) => {
             if (error) {

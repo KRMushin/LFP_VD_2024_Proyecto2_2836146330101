@@ -60,7 +60,7 @@ conteo()
 promedio("suma")
 max("multiplicacion")
 min("raiz")
-generarReporte("tokens")
+generarReporte("tokens", "sale lenguajes")
 generarReporte("errores", "202107061")
 generarReporte("arbol", "Nueva derivación")
 

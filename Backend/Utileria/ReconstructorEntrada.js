@@ -25,13 +25,6 @@ class ReconstructorEntrada{
 
             entrada += t.lexema;
         }
-        // try {
-        //     const json = entrada.JSON.stringify();
-        //     return json;
-        // } catch (error) {
-        //     console.log('Error en la reconstruccion de la entrada', error);
-        //     return null;
-        // }
         return entrada;
     }
 

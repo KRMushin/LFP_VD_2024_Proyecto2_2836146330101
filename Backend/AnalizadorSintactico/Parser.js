@@ -138,7 +138,9 @@ class Parser {
                     this.analizarConfiguracionesLex();
                     break;
                 case "FUNCION":
-                    this.analizarFunciones();
+                    const nodo = this.agregarNodo("\"FUNCION\"");
+                    this.agregarRelacion(nodoRaiz, nodo);
+                    this.analizarFunciones(nodo);
                     break;
                 default:
                     this.siguienteToken();
@@ -354,6 +356,13 @@ class Parser {
 
             this.esperar("SIMBOLO_DELIMITADOR", "}");
             // se maneja aca para no desincronizar con la operacion padre :D
+            if (this.tokenActual()?.lexema !== "]") {
+                numeroErrores++;
+                this.registrarError("Se esperaba un cierre de corchete");
+            }else{
+                this.constructorOperacion += this.tokenActual().lexema;
+            }
+
             if (numeroErrores <= 0) {
                 return elementosAnidados;
 
@@ -361,12 +370,6 @@ class Parser {
                 return false;
             }
 
-            if (this.tokenActual()?.lexema !== "]") {
-                numeroErrores++;
-                this.registrarError("Se esperaba un cierre de corchete");
-            }else{
-                this.constructorOperacion += this.tokenActual().lexema;
-            }
     
             if (!elementosAnidados.operacion || !elementosAnidados.valor1) {
                 numeroErrores++;
@@ -386,46 +389,43 @@ class Parser {
         AREA DE CREACION DE NODOS
     */
         crearNodosDeOperacion(elementos, operacionNode) {
-            console.log("Operación válida:", elementos);
             this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
         
             // Crear nodo para la operación principal
             if (elementos.operacion) {
-                const operacionHijo = this.agregarNodo("OPERACION");
-                const operacionValor = this.agregarNodo(elementos.operacion);
+                const operacionHijo = this.agregarNodo("\"OPERACION\"");
+                const operacionValor = this.agregarNodo(`\"${elementos.operacion}\"`);
                 this.agregarRelacion(operacionNode, operacionHijo);
                 this.agregarRelacion(operacionHijo, operacionValor);
         
                 // Relacionar nombre, valor1 y valor2 con la operación
                 if (elementos.nombre) {
-                    const nombreNode = this.agregarNodo("ID_OPERACION");
-                    const nombreValorNode = this.agregarNodo(elementos.nombre);
+                    const nombreNode = this.agregarNodo("\"ID_OPERACION\"");
+                    const nombreValorNode = this.agregarNodo(`\"${elementos.nombre}\"`);
                     this.agregarRelacion(operacionHijo, nombreNode);
                     this.agregarRelacion(nombreNode, nombreValorNode);
                 }
         
                 if (elementos.valor1) {
-                    const valor1Node = this.agregarNodo("ID_VALOR_1");
+                    const valor1Node = this.agregarNodo("\"ID_VALOR_1\"");
                     this.agregarRelacion(operacionHijo, valor1Node);
         
-                    // Si valor1 es un objeto, procesar recursivamente
                     if (typeof elementos.valor1 === "object") {
                         this.crearNodosDeOperacion(elementos.valor1, valor1Node);
                     } else {
-                        const valor1ValorNode = this.agregarNodo(elementos.valor1);
+                        const valor1ValorNode = this.agregarNodo(`\"${elementos.valor1}\"`);
                         this.agregarRelacion(valor1Node, valor1ValorNode);
                     }
                 }
         
                 if (elementos.valor2) {
-                    const valor2Node = this.agregarNodo("ID_VALOR_1");
+                    const valor2Node = this.agregarNodo("\"ID_VALOR_2\"");
                     this.agregarRelacion(operacionHijo, valor2Node);
         
-                    // Si valor2 es un objeto, procesar recursivamente
                     if (typeof elementos.valor2 === "object") {
                         this.crearNodosDeOperacion(elementos.valor2, valor2Node);
                     } else {
-                        const valor2ValorNode = this.agregarNodo(elementos.valor2);
+                        const valor2ValorNode = this.agregarNodo(`\"${elementos.valor2}\"`);
                         this.agregarRelacion(valor2Node, valor2ValorNode);
                     }
                 }
@@ -472,7 +472,7 @@ class Parser {
         const nombreConfiguracion = this.tokenActual()?.lexema;
         
         const configNode = this.agregarNodo("\"CONFIGURACION\"");
-        const nombreNode = this.agregarNodo(nombreConfiguracion);
+        const nombreNode = this.agregarNodo(`\"${nombreConfiguracion}\"`);
         this.agregarRelacion(configNode, nombreNode);
         
         this.esperarConfig("CONFIGURACION");
@@ -570,19 +570,21 @@ class Parser {
     /*
         AREA DE ANALIZR FUNCIONES JUNTO CON SUS PARAMETROS
     */
-        analizarFunciones() {
+        analizarFunciones(nodoRoot) {
             const nombreFuncion = this.tokenActual()?.lexema;
             const fila = this.tokenActual()?.fila;
             const columna = this.tokenActual()?.columna;
-        
+            let numeroErrores = 0;
+
             this.esperarFunc("FUNCION");
             this.esperarFunc("SIMBOLO_DELIMITADOR", "(");
-        
+
             const parametros = this.analizarParametros([], nombreFuncion);
         
             this.esperarFunc("SIMBOLO_DELIMITADOR", ")");
         
             if (parametros === null) {
+                numeroErrores++;
                 return;
             }
         
@@ -595,8 +597,25 @@ class Parser {
                     ubicacion: { fila, columna },
                 });
             } else {
+                numeroErrores++;
                 this.registrarErrorFunc(`Función desconocida: ${nombreFuncion}`);
             }
+
+            if (numeroErrores <= 0) {
+                const nodoFuncion = this.agregarNodo(`"Función: ${nombreFuncion}"`);
+                this.agregarRelacion(nodoRoot, nodoFuncion);
+                const nodoParametros = this.agregarNodo("\"PARAMETROS\"");
+                this.agregarRelacion(nodoFuncion, nodoParametros);
+
+                for (let index = 0; index < parametros.length; index++) {
+                    const nodoParametro = this.agregarNodo(parametros[index]);
+                    this.agregarRelacion(nodoParametros, nodoParametro);
+                }
+
+                const nodoCierre = this.agregarNodo("\"SIMBOLO_DELIMITADOR\"");
+                this.agregarRelacion(nodoFuncion, nodoCierre);
+            }
+
         }
         
         analizarParametros(lista = [], nombreFuncion = "") {
