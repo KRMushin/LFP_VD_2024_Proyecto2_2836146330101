@@ -1,46 +1,4 @@
-
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #000000;
-  }
-  
-  .app-header {
-  background-color: #000000;
-  color: #000000;
-  padding: 10px;
-  border-bottom: 2px solid #000000;
-  }
-
-  .app-content {
-    flex: 1;
-    padding: 0 10px; 
-  }
-  
-  .row {
-  display: flex;
-  padding: 0;
-  }
-  
-  .col-md-6 {
-  flex: 0 0 50%;
-  padding: 0 6px;
-  }
-  
-  .editor-panel {
-  background-color: #ffffff;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  height: calc(100vh - 150px);
-  overflow-y: auto;
-  }
-  
-  .console-panel {
-  background-color: #ffffff;
-  height: calc(100vh - 150px);
-  overflow-y: auto;
-  }
-
-  body {
-  background-color: #f0f0f0;
+body {
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #e8e8e8;
 }

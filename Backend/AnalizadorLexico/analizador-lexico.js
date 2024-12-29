@@ -212,7 +212,6 @@ class AnalizadorLexico {
                     }
                 
                     if (esCadenaValida) {
-                        console.log('aca se creo un token' , tokenActual , 'siguiente estado')
                         tokens.push(this.generadorTokens.creadorToken('qCADENA', tokenActual, fila, col));
                 
                     }

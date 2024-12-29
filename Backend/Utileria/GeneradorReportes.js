@@ -15,25 +15,23 @@ class GeneradorReportes {
             const ms = await this.guardarReporteHTML(ReporteHTML, nombreFinal, this.carpetaReportesTokens);
             return ms;
         } catch (error) {
-            return `Error al generar el reporte HTML: ${error.message}`;
+            return `Error al generar el reporte HTML en el generador de reportes`;
         }
     }
 
-    async generarReporteErroresHTML(erroresLexicos, sintacticosOperaciones, sintacticosFunciones, sintacticosConfiguraciones, nombreFinal) {
-        const htmlReporte = generadorHTML.generarErroresHTML(erroresLexicos, sintacticosOperaciones, sintacticosFunciones, sintacticosConfiguraciones);
-        console.log(htmlReporte); 
-        console.log(nombreFinal);
-
+   
+    async generarReporteErroresHTML(erroresReporte, nombreReporte) {
+        const htmlReporte = generadorHTML.generarErroresHTML(erroresReporte);
         try {
-            const ms = await this.guardarReporteHTML(htmlReporte, nombreFinal, this.carpetaReportesErrores);
+            const ms = await this.guardarReporteHTML(htmlReporte, nombreReporte, this.carpetaReportesErrores);
             return ms;
         } catch (error) {
-            return `Error al guardar el archivo HTML: ${error.message}`;
+            return `Error al guardar el archivo de errores HTML`;
         }
     }
-    
 
-    async guardarReporteHTML(htmlReporte, nombreFinal, carpetaDestino) {
+    async guardarReporteHTML(htmlReporte, nombre, carpetaDestino) {
+        const nombreFinal = this.sanitizarNombreArchivo(nombre);
         let fileName = nombreFinal.endsWith('.html') ? nombreFinal : nombreFinal + '.html';
         let filePath = path.resolve(carpetaDestino, fileName);
         
@@ -45,33 +43,26 @@ class GeneradorReportes {
         
         try {
             await fs.writeFile(filePath, htmlReporte);
+            console.log(`Reporte HTML generado correctamente: file://${filePath}`);
             return `Reporte HTML generado correctamente: file://${filePath}`;
         } catch (error) {
-            return `Error al guardar el archivo HTML: ${error.message}`;
+            console.log( `Error al guardar el archivo HTML: ${error.message}`);
+            return `Error al guardar el archivo HTML en el generador de reportes`;
         }
     }
 
-    async generarJSONErrores(listaErrores) {
-        try {
-            const listaErroresConFormato = listaErrores.map((error, indice) => ({
-                No: indice + 1,
-                descripcion: {
-                    lexema: error.lexema,
-                    tipo: error.tipo,
-                    columna: error.columna,
-                    fila: error.fila,
-                    caracterError: error.caracter
-                }
-            }));
-
-            const contenidoJSON = JSON.stringify({ errores: listaErroresConFormato }, null, 4);
-            const nombreArchivo = path.join(this.carpetaReportesJSON, "ERRORES_2836146330101.json");
-            await fs.writeFile(nombreArchivo, contenidoJSON, "utf8");
-
-            console.log(`Archivo JSON generado correctamente: ${nombreArchivo}`);
-        } catch (error) {
-            console.error("Error al generar el archivo JSON:", error.message);
+    sanitizarNombreArchivo(nombreArchivo) {
+        if (!nombreArchivo) return 'carnet_202231207';
+    
+        const caracteresPermitidos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_. ';
+        let nombreSanitizado = '';
+    
+        for (const caracter of nombreArchivo) {
+            if (caracteresPermitidos.includes(caracter)) {
+                nombreSanitizado += caracter;
+            }
         }
+        return nombreSanitizado.trim(); 
     }
 }
 

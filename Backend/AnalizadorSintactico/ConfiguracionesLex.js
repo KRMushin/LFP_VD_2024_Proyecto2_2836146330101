@@ -2,10 +2,10 @@ class ConfiguracionesLex{
 
     // valores por default por si las moscas XD
     constructor(){
-        this.fondo = "#f3ff00";
-        this.fuente = "#000000";
-        this.forma = "box"; 
-        this.tipoFuente = "Arial";
+        this.fondo = "\"#f3ff00\"";
+        this.fuente = "\"#000000\"";
+        this.forma = "\"box\""; 
+        this.tipoFuente = "\"Arial\"";
         this.tipoConfiguracion = "";
     }
 

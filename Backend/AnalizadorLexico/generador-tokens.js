@@ -76,6 +76,8 @@ class GeneradorTokens {
                 return "FUNCION";    
             case "qNOMBRE":
                 return "ID_OPERACION";
+            case "qCOCOMPLEJO":
+                return "COMENTARIO_MULTILINEA";    
             case "qCONFIGURACION":
                 switch (lexema) {
                     case "operaciones":

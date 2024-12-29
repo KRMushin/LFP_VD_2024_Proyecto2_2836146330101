@@ -32,7 +32,11 @@ class GeneradorArboles {
                 console.error(`Error al generar: ${error.message}`);
                 return;
             }
+            console.log("");
+            console.log("           Generacion correcta de la iamgen de operaciones")
+            console.log("");
             console.log(`Imagen generada correctamente: ${rutaImagen}`);
+            console.log("");
         });
 
         return rutaImagen;

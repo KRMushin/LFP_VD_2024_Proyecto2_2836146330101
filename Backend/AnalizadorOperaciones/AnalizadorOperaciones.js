@@ -2,13 +2,14 @@ const TablaOperaciones = require("../Tablas/TablaOperaciones.js");
 const TablaConfiguraciones = require("../AnalizadorSintactico/ConfiguracionesLex.js");
 const Operacion = require("../Tablas/Operacion.js");
 
-const { calculadoraOperaciones } = require("../Calculador/CalculadoraOperaciones.js");
+const CalculadoraOperaciones = require("../Calculador/CalculadoraOperaciones.js");
 const GeneradorArboles = require("./GeneradorArboles.js");
 
 class AnalizadorOperaciones {
 
     constructor() {
         this.generadorArboles = new GeneradorArboles();
+        this.calculadoraOperaciones = new CalculadoraOperaciones();
     }
 
     analizarOperaciones(textoEntrada, configuracionesLex) {
@@ -21,11 +22,15 @@ class AnalizadorOperaciones {
                 return;
             }
             const tablaOperaciones = this.llenarTablaOperaciones(json);
-            calculadoraOperaciones(tablaOperaciones);
-            // const tablaConfiguracion = new TablaConfiguraciones();
+            this.calculadoraOperaciones.calculadoraOperaciones(tablaOperaciones);
 
             const dot = this.generadorArboles.generarDot(configuracionesLex, tablaOperaciones);
+            console.log("");
+            console.log("           Generacion del archivo dot para el arbol de operaciones ");
+            console.log("");
             console.log(dot);
+            console.log("");
+            return tablaOperaciones;
 
         } catch (error) {
             console.error("Error en /analisis-lexico:", error); // Registro detallado en la consola
@@ -38,12 +43,9 @@ class AnalizadorOperaciones {
 
         let tablaOperaciones = new TablaOperaciones();
         
-        
-        // let operaciones = [];
-
-        // if (Array.isArray(json)) {
-        //     operaciones = json;
-        // } else {
+        if (!Array.isArray(json)) {
+            throw new Error("El argumento json debe ser un array");
+        }
         const operaciones = json.map(item => JSON.parse(item));
         operaciones.forEach(element => {
             let operacion = new Operacion(element.operacion);

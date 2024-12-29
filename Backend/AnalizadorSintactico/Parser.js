@@ -262,10 +262,6 @@ class Parser {
         if (numeroErrores <= 0) {
             this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
 
-            // console.log('operacion valida elementos' , elementos )
-            // if (typeof elementos.valor1 === 'object' && elementos.valor1 !== null) {
-            //     console.log('valor 1 es un objeto' , elementos.valor1)
-            // }
             try {
                 this.crearNodosDeOperacion(elementos, operacionNode);
             } catch (error) {
@@ -389,7 +385,6 @@ class Parser {
         AREA DE CREACION DE NODOS
     */
         crearNodosDeOperacion(elementos, operacionNode) {
-            this.tablaOperaciones.agregarOperacion(this.constructorOperacion);
         
             // Crear nodo para la operación principal
             if (elementos.operacion) {
@@ -627,7 +622,7 @@ class Parser {
                         return lista.length > 0 ? lista : null;
                     }
         
-                    if (["OPERACION_ARITMETICA", "FUNCION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
+                    if (["OPERACION_ARITMETICA", "OPERACION_TRIGONOMETRICA"].includes(this.tokenActual()?.tipo)) {
                         lista.push(this.tokenActual()?.lexema);
                         this.siguienteToken();
                     } else if (this.tokenActual()?.lexema === ",") {
@@ -648,7 +643,10 @@ class Parser {
         
                 case "generarreporte":
                     if (this.tokenActual()?.tipo === "SIMBOLO_DELIMITADOR" && this.tokenActual()?.lexema === ")") {
-                        return lista.length > 0 && lista.length <= 2 ? lista : null; 
+                        if (!lista[0] || lista[0].trim() === "") {
+                            lista[0] = "default";
+                        }
+                        return lista.length <= 2 ? lista : null;
                     }
                     if (this.tokenActual()?.tipo === "CADENA") {
                         lista.push(this.tokenActual()?.lexema);

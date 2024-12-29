@@ -1,27 +1,81 @@
-<div class="code-editor bg-black text-white">
-    <!-- Barra de herramientas -->
-    <div class="toolbar" style="padding: 10px; display: flex; gap: 10px;">
-      <button class="btn btn-primary btn-sm" (click)="abrirArchivo()">Abrir</button>
-      <button class="btn btn-success btn-sm" (click)="guardarArchivo()">Guardar</button>
-      <button class="btn btn-warning btn-sm" (click)="guardarComo()">Guardar Como</button>
-      <button class="btn btn-danger btn-sm" (click)="limpiarTexto()">Limpiar</button>
-      <button class="btn btn-info btn-sm" style="margin-left: auto;" (click)="analizar()">Analizar</button>
+<!-- Barra de Estilo Superior -->
+<div class="bg-dark text-center text-white py-2 shadow-sm" style="font-size: 20px; font-weight: bold; letter-spacing: 2px;">
+  NODE LEXER <span class="text-warning">V2</span>
+</div>
 
+<!-- Barra de Estadísticas -->
+<div class="d-flex justify-content-around align-items-center p-2 bg-secondary text-white shadow-sm">
+  <div class="text-center">
+    <p class="mb-0 text-warning fw-bold">Tokens</p>
+    <p class="mb-0">{{ tokens.length }}</p>
+  </div>
+  <div class="text-center">
+    <p class="mb-0 text-danger fw-bold">Errores Léxicos</p>
+    <p class="mb-0">{{ listaErrores.length }}</p>
+  </div>
+  <div class="text-center">
+    <p class="mb-0 text-info fw-bold">Errores Sintácticos (Operaciones)</p>
+    <p class="mb-0">{{ erroresSintacticos.length }}</p>
+  </div>
+  <div class="text-center">
+    <p class="mb-0 text-primary fw-bold">Errores Sintácticos (Configs)</p>
+    <p class="mb-0">{{ erroresSintacticosConfigs.length }}</p>
+  </div>
+  <div class="text-center">
+    <p class="mb-0 text-success fw-bold">Errores Sintácticos (Funciones)</p>
+    <p class="mb-0">{{ erroresSintacticosConfigs.length }}</p>
+  </div>
+</div>
+
+<!-- Contenedor Principal -->
+<div
+  class="container-fluid d-flex flex-row justify-content-center align-items-center mt-3"
+  style="height: 80vh; background-color: rgba(20, 20, 20, 0.95); color: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);"
+>
+  <div class="editor-panel d-flex flex-column shadow-lg rounded" style="width: 60%; height: 100%; background: linear-gradient(145deg, #1e1e1e, #252525); color: white;">
+    <div class="p-3 bg-dark rounded-top text-white d-flex align-items-center" style="border-bottom: 2px solid #444;">
+      <button class="btn btn-primary btn-sm me-2 shadow-sm" (click)="abrirArchivo()">Abrir</button>
+      <button class="btn btn-success btn-sm me-2 shadow-sm" (click)="guardarArchivo()">Guardar</button>
+      <button class="btn btn-warning btn-sm me-2 shadow-sm" (click)="guardarComo()">Guardar Como</button>
+      <button class="btn btn-danger btn-sm me-2 shadow-sm" (click)="limpiarTexto()">Limpiar</button>
+      <button class="btn btn-info btn-sm ms-auto shadow-sm" (click)="analizar()">Analizar</button>
     </div>
-  
-    <textarea 
+
+    <!-- texto editado -->
+    <textarea
       #codeArea
-      class="code-area" 
-      placeholder="Escribe tu código aquí..." 
-      (input)="actualizarCursor($event)" 
-      (click)="actualizarCursor($event)" 
-      (keyup)="actualizarCursor($event)" 
-      style="width: 100%; height: 574px; background: rgb(27, 26, 26); color: white; border: none; outline: none; font-family: monospace; font-size: 16px; padding: 10px; resize: none;">
-    </textarea>
-  
-    <!-- Indicador de Fila y Columna -->
-    <div class="status-bar bg-black text-white" style="padding: 5px; font-family: monospace;">
-      Fila: {{ fila }} | Columna: {{ columna }}
+      class="flex-grow-1 w-100 bg-black text-white border-0 p-3 rounded-bottom"
+      style="box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5); font-family: 'Fira Code', monospace; font-size: 16px;"
+      placeholder="Escribe tu código aquí..."
+      (input)="actualizarCursor($event)"
+      (click)="actualizarCursor($event)"
+      (keyup)="actualizarCursor($event)"
+    ></textarea>
+
+    <div class="bg-dark text-light p-2 border-top text-center" style="font-size: 14px;">
+      Fila: <span class="fw-bold text-warning">{{ fila }}</span> | Columna: <span class="fw-bold text-warning">{{ columna }}</span>
     </div>
   </div>
-    
+
+  <div class="console-panel d-flex flex-column border-start border-secondary shadow-lg rounded ms-3" 
+     style="width: 40%; height: 100%; background: linear-gradient(145deg, #2a2a2a, #313131);">
+    <h5 class="p-3 text-info bg-dark mb-0 rounded-top text-center" style="border-bottom: 2px solid #444; letter-spacing: 1px;">Consola de Análisis</h5>
+
+    <div class="flex-grow-1 p-3 text-white bg-black rounded-bottom" style="overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 14px; box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);">
+
+      <ng-container *ngIf="imprimibles.length > 0; else noImprimibles">
+        <h6 class="text-warning mb-2">Imprimibles:</h6>
+        <ul class="list-unstyled m-0">
+          <li *ngFor="let imprimible of imprimibles" class="text-light mb-1">
+            - {{ imprimible }}
+          </li>
+        </ul>
+      </ng-container>
+
+      <ng-template #noImprimibles>
+        <p class="text-muted m-0">No hay imprimibles disponibles.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+

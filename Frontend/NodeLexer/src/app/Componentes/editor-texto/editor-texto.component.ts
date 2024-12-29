@@ -1,11 +1,12 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ApiRutasService } from '../../api-rutas.service';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-editor-texto',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './editor-texto.component.html',
   styleUrl: './editor-texto.component.css'
 })
@@ -15,14 +16,19 @@ export class EditorTextoComponent {
   @ViewChild('codeArea') areaTexto!: ElementRef<HTMLTextAreaElement>;
 
   tokens: any[] = [];
+  imprimibles: any[] = [];
+  errores: any = {}; 
   listaErrores: any[] = [];
+  erroresSintacticos: any[] = [];
+  erroresOperaciones: any[] = [];
+  erroresSintacticosConfigs: any[] = [];
+
   json: any = {};
 
   constructor(private api: ApiRutasService) {}
   
   fila: number = 1;
   columna: number = 1;
-
   archivoAbierto: File | null = null;
 
   public analizar() {
@@ -35,14 +41,33 @@ export class EditorTextoComponent {
 
     this.api.obtenerTokensYJson(codigo).subscribe(
       (data: any) => {
-        this.tokens = data.tokens || []; // Almacenar tokens
-        this.listaErrores = data.listaErrores || []; // Almacenar errores
 
-        console.log('Tokens:', this.tokens);
-        console.log('Errores:', this.listaErrores);
+        this.tokens = data.tokens || []; 
+
+        if (this.tokens) {
+          console.log(this.tokens);
+        }
+        this.imprimibles = data.imprimibles || [];
+        this.errores = data.errores || {};
+
+        if (this.errores) {
+          this.listaErrores = this.errores.listaErrores || [];
+          this.erroresSintacticos = this.errores.erroresSintacticos || [];
+          console.log(this.erroresSintacticos);
+          this.erroresOperaciones = this.errores.erroresOperaciones || [];
+          console.log(this.erroresOperaciones);
+          this.erroresSintacticosConfigs = this.errores.erroresSintacticosConfigs || [];
+        }
+
       },
     );
   }
+
+
+
+
+
+
 
   /*
     Area de actualizacion de la fila y columna
@@ -60,6 +85,10 @@ export class EditorTextoComponent {
     this.fila = lineas.length;
     this.columna = lineas[lineas.length - 1].length + 1;
   }
+
+
+
+
 
   /*
     AREA DE HERRAMIENTAS DEL EDITOR DEL TEXTO EL CUAL ABRE/ETC CON LOS ARCHIVOS

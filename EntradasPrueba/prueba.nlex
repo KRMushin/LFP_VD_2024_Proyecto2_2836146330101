@@ -36,6 +36,18 @@ Operaciones = [
   },
 ]
 
+{"operacion": "suma",
+ "nombre": "operacion3",
+ "valor2": [
+ 			{"operacion": "multiplicacion", "valor1": 10, "valor2": [
+ 								{"operacion": "raiz","valor1":10, "valor2": 2
+ 								}
+ 								]
+ 			}
+ 		]
+ 	}
+
+
 
 ConfiguracionesLex = [
     fondo: "#111111",
@@ -64,6 +76,3 @@ generarReporte("tokens", "sale lenguajes")
 generarReporte("errores", "202107061")
 generarReporte("arbol", "Nueva derivación")
 
-
-
-analizador lexico sin JSON

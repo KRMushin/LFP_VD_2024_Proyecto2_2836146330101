@@ -2,6 +2,7 @@ class TablaOperaciones{
 
     constructor(){
         this.operacionesPadre = [];
+        this.operacionesClasificacion = {};
     }
 
     agregarOperacion(operacion){
@@ -12,7 +13,9 @@ class TablaOperaciones{
         return JSON.stringify(this.operacionesPadre, null, 2);
     }
 
-      
+    agregarDiccionarioOperaciones(operaciones){
+        this.operacionesClasificacion = operaciones;
+    }
 
 }
 

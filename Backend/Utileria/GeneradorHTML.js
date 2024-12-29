@@ -70,7 +70,9 @@ function generarTokensHTML(tokensEncontrados) {
     return htmlReporte;
 }
 
-function generarErroresHTML(erroresLexicos, sintacticosOperaciones, sintacticosFunciones, sintacticosConfiguraciones) {
+function generarErroresHTML(erroresReporte) {
+    const { listaErrores, erroresSintacticos, erroresOperaciones, erroresSintacticosConfigs } = erroresReporte;
+
     let htmlReporte = `
         <html>
             <head>
@@ -114,19 +116,19 @@ function generarErroresHTML(erroresLexicos, sintacticosOperaciones, sintacticosF
                 <h1>Reporte de Errores</h1>
     `;
 
-    htmlReporte += generarTablaErrores("Errores Léxicos", erroresLexicos, [
+    htmlReporte += generarTablaErrores("Errores Léxicos", listaErrores, [
         "Tipo Error", "Caracter Error", "Fila", "Columna", "AFD Informe", "Lexema"
     ]);
 
-    htmlReporte += generarTablaErrores("Errores Sintácticos en Operaciones", sintacticosOperaciones, [
+    htmlReporte += generarTablaErrores("Errores Sintácticos en Operaciones",     erroresSintacticos, [
         "Mensaje de Error"
     ]);
 
-    htmlReporte += generarTablaErrores("Errores Sintácticos en Funciones", sintacticosFunciones, [
+    htmlReporte += generarTablaErrores("Errores Sintácticos en Funciones", erroresOperaciones, [
         "Mensaje de Error"
     ]);
 
-    htmlReporte += generarTablaErrores("Errores Sintácticos en Configuraciones", sintacticosConfiguraciones, [
+    htmlReporte += generarTablaErrores("Errores Sintácticos en Configuraciones", erroresSintacticosConfigs, [
         "Mensaje de Error"
     ]);
 
@@ -153,18 +155,15 @@ function generarTablaErrores(titulo, errores, columnas) {
             <tr>
     `;
 
-    // Encabezados de la tabla
     columnas.forEach(columna => {
         tabla += `<th>${columna}</th>`;
     });
 
     tabla += `</tr>`;
 
-    // Filas de la tabla
     errores.forEach((error, index) => {
         tabla += `<tr>`;
         if (error.tipo) {
-            // Para errores léxicos
             tabla += `
                 <td>${index + 1}</td>
                 <td>${error.tipo}</td>
@@ -175,7 +174,6 @@ function generarTablaErrores(titulo, errores, columnas) {
                 <td>${error.lexema}</td>
             `;
         } else {
-            // Para errores sintácticos
             tabla += `<td>${index + 1}</td><td>${error.mensaje}</td>`;
         }
         tabla += `</tr>`;
