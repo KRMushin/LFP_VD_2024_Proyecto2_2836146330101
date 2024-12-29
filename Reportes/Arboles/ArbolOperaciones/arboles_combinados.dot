@@ -4,36 +4,36 @@ digraph G {
     edge [color=black];
     subgraph cluster_0 {
         label="Operacion 1";
-    "nodo_w2n15" [label="resta\nResultado: 3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_w2n15" [label="6.5", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_w2n15" -> "valor1_nodo_w2n15" [label="Valor1"];
-    "valor2_nodo_w2n15" [label="3.5", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_w2n15" -> "valor2_nodo_w2n15" [label="Valor2"];
+    "nodo_5nad2d" [label="resta\nResultado: 3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_5nad2d" [label="6.5", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_5nad2d" -> "valor1_nodo_5nad2d" [label="Valor1"];
+    "valor2_nodo_5nad2d" [label="3.5", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_5nad2d" -> "valor2_nodo_5nad2d" [label="Valor2"];
     }
     subgraph cluster_1 {
         label="Operacion 2";
-    "nodo_orjym5" [label="multiplicacion\nResultado: 2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_orjym5" [label="2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_orjym5" -> "valor1_nodo_orjym5" [label="Valor1"];
-    "nodo_5pd757" [label="seno\nResultado: 1", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_5pd757" [label="90", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_5pd757" -> "valor1_nodo_5pd757" [label="Valor1"];
-    "nodo_orjym5" -> "nodo_5pd757" [label="Valor2"];
+    "nodo_mwzs2" [label="multiplicacion\nResultado: 2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_mwzs2" [label="2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_mwzs2" -> "valor1_nodo_mwzs2" [label="Valor1"];
+    "nodo_97a2kq" [label="seno\nResultado: 1", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_97a2kq" [label="90", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_97a2kq" -> "valor1_nodo_97a2kq" [label="Valor1"];
+    "nodo_mwzs2" -> "nodo_97a2kq" [label="Valor2"];
     }
     subgraph cluster_2 {
         label="Operacion 3";
-    "nodo_rv9n49" [label="suma\nResultado: 33.92277660168379", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_rv9n49" [label="2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_rv9n49" -> "valor1_nodo_rv9n49" [label="Valor1"];
-    "nodo_33ekso" [label="multiplicacion\nResultado: 31.622776601683796", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_33ekso" [label="10", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_33ekso" -> "valor1_nodo_33ekso" [label="Valor1"];
-    "nodo_4u4ndd" [label="raiz\nResultado: 3.1622776601683795", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "valor1_nodo_4u4ndd" [label="10", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_4u4ndd" -> "valor1_nodo_4u4ndd" [label="Valor1"];
-    "valor2_nodo_4u4ndd" [label="2", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
-    "nodo_4u4ndd" -> "valor2_nodo_4u4ndd" [label="Valor2"];
-    "nodo_33ekso" -> "nodo_4u4ndd" [label="Valor2"];
-    "nodo_rv9n49" -> "nodo_33ekso" [label="Valor2"];
+    "nodo_yexv0j" [label="suma\nResultado: 33.92277660168379", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_yexv0j" [label="2.3", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_yexv0j" -> "valor1_nodo_yexv0j" [label="Valor1"];
+    "nodo_yabyas" [label="multiplicacion\nResultado: 31.622776601683796", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_yabyas" [label="10", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_yabyas" -> "valor1_nodo_yabyas" [label="Valor1"];
+    "nodo_d83aub" [label="raiz\nResultado: 3.1622776601683795", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "valor1_nodo_d83aub" [label="10", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_d83aub" -> "valor1_nodo_d83aub" [label="Valor1"];
+    "valor2_nodo_d83aub" [label="2", shape="diamond", fillcolor="#111111", fontcolor="#ffffff", style=filled];
+    "nodo_d83aub" -> "valor2_nodo_d83aub" [label="Valor2"];
+    "nodo_yabyas" -> "nodo_d83aub" [label="Valor2"];
+    "nodo_yexv0j" -> "nodo_yabyas" [label="Valor2"];
     }
 }
