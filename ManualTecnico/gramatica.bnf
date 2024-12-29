@@ -1,0 +1,95 @@
+------------------
+<tokens> ::= CADENA | COLOR | FORMA | FUENTE | TEXTO | VALOR_NUMERICO | OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA
+
+<CADENA> ::= "\"" [A-Za-z0-9_ ]+ "\""
+
+<COLOR> ::= "#" [0-9A-Fa-f]{6}
+
+<FORMA> ::= "circle" | "box" | "diamond"
+
+<FUENTE> ::= "Times-Roman" | "Arial" 
+
+<VALOR_NUMERICO> ::= [0-9]+ ("." [0-9]+)?
+
+<OPERACION_ARITMETICA> ::= "suma" | "resta" | "multiplicacion" | "division" | "raiz" |
+                            "mod"
+<OPERACION_TRIGONOMETRICA> ::= "seno" | "coseno" | "tangente"
+
+---------------
+TERMINALES
+
+Palabras clave:
+
+      OPERACIONES
+      OPERACION
+      OPERACION_ARITMETICA
+      OPERACION_TRIGONOMETRICA
+      ID_OPERACION
+      VALOR_1
+      VALOR2     
+
+Símbolos Delimitadores:
+
+= (asignación)
+: (separador de clave-valor)
+, (coma, separador de elementos)
+[ y ] (para arreglos)
+{ y } (para objetos)
+
+Tipos de datos:
+
+CADENA (cadena de texto)
+VALOR_NUMERICO (número entero o decimal)
+
+NO TERMINALES
+
+<nlex-archivo>:   Representa el archivo general.
+<operaciones>:    Define la sección de operaciones.
+<arreglo_operaciones>:  Lista de operaciones entre corchetes.
+<operacion>:      Describe una operación individual.
+<operacion_anidada>:    Representa operaciones anidadas dentro de otra operación.
+
+PRODUCCIONES
+
+<nlex-archivo> ::= <operaciones> "," <configuraciones> <funciones> <comentarios>
+
+<operaciones> ::= OPERACIONES "=" <arreglo_operaciones>
+
+<arreglo_operaciones> ::= "[" <operacion> { "," <operacion> } "]"
+
+<operacion> ::= "{"
+
+                  "operacion" ":" ( OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA )
+                  | "nombre" ":" "ID_OPERACION"
+                  | "valor1" ":" ( VALOR_NUMERICO | <operacion_anidada> )
+                  | "valor2" ":" ( VALOR_NUMERICO | <operacion_anidada> ) [VALOR2_OPCIONAL]
+                  
+                "}"
+
+      /*
+            CONFIGURACIONES 
+*/
+<configuraciones> ::= "ConfiguracionesLex" "=" <configuracion_arreglo> ","
+                      "ConfiguracionesParser" "=" <configuracion_arreglo>
+
+<configuracion_arreglo> ::= "[" <configuracion> { "," <configuracion> } "]"
+
+<configuracion> ::= ( "fondo" ":" COLOR  |
+                      "fuente" ":" COLOR |
+                      "forma" ":" FORMA  |
+                      "tipoFuente" ":" FUENTE )
+
+<funciones> ::= <funcion> { <funcion> }
+
+<funcion> ::= "imprimir" "(" OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA")"
+             | "conteo" "()"
+             | "promedio" "(" OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA ")"
+             | "max" "(" OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA ")"
+             | "min" "(" OPERACION_ARITMETICA | OPERACION_TRIGONOMETRICA ")"
+             | "generarReporte" "(" (CADENA [ "," CADENA ])? ")"
+
+<comentarios> ::= <comentario_simple> | <comentario_multilinea>
+
+<comentario_simple> ::= "//" TEXTO
+
+<comentario_multilinea> ::= "/*" TEXTO "*/"
