@@ -1,0 +1,111 @@
+Operaciones = [
+    {
+    	"operacion": "resta",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2":  [
+	    		{
+	    			"valor2":  [
+			    		{
+			    			"operacion": "seno",
+			    			"valor1": 90
+			    		}
+			    	],
+	    			"operacion": "seno",
+	    			"valor1": 90
+	    		}
+	    	]
+    },
+    {
+    	"operacion": "suma",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2": 3.5
+    },
+    {
+    	"operacion": "multiplicacion",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2": 3.5
+    },
+    {
+    	"operacion": "division",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2": 3.5
+    },
+    {
+    	"operacion": "mod",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2": 3.5
+    },
+    {
+    	"operacion": "seno",
+    	"nombre": "operacion1", 
+    	"valor1": 6.5, 
+    	"valor2": 3.5
+    },
+    {
+	    	"operacion": "coseno", 
+	    	"nombre": "operacion2", 
+	    	"valor1": 2.3, 
+	    	"valor2": [
+	    		{
+	    			"operacion": "seno",
+	    			"valor1": 90
+	    		}
+	    	]
+    	},
+    {
+	    "operacion": "tangente",
+	    "nombre": "operacion3", 
+	    "valor1": 2.3,
+	    "valor2": [
+	    		{"operacion": "multiplicacion",
+	    		 "valor1": 10, 
+	    		 	"valor2": [
+	    		 		{
+		    		 		"operacion": "raiz", 
+		    		 		"valor1": 10, 
+		    		 		"valor2": 2
+	    		 		}
+	    			]
+	    		}
+	   ]
+  },
+  {
+  	"operacion": "suma",
+ 	"nombre": "operacion3",
+        "valor1": 25,
+ 	"valor2": [
+ 			{
+ 			"operacion": "multiplicacion",
+ 			"valor1": 10,
+ 			"valor2": [
+ 					{
+ 					"operacion": "raiz",
+ 					"valor1":10,
+ 					"valor2": 2
+ 					}
+ 				]
+ 			}
+ 		]
+ 	}
+]
+
+
+// Comentario simple
+/* Comentario de
+múltiple línea */
+
+imprimir("Lenguajes Formales y de Programación")
+conteo()
+conteo()
+promedio("raiz")
+max("multiplicacion")
+min("raiz")
+generarReporte("tokens", "sale lenguajes")
+generarReporte("errores", "202107061")
+generarReporte("arbol", "Nueva derivación")
+

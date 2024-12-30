@@ -28,7 +28,9 @@ app.post('/analisis-lexico', (req, res) => {
         this.imprimibles = new ProcesadorImprimibles();
 
         const { tokens, listaErrores } = this.analizadorLexico.analizarEntrada(cadena);
-    
+        const comentarios = this.analizadorLexico.comentarios;
+        
+        console.log(tokens);
         if (!tokens) {
             return res.json({ tokens, listaErrores });
         }
@@ -72,11 +74,11 @@ app.post('/analisis-lexico', (req, res) => {
         const tablaOperacions  = this.procesador.generarTablaOperaciones(operacionesValidas, configuracionesLex);
         
         if (!tablaOperacions) {
-            return res.json({ tokens, errores });
+            return res.json({ tokens, errores, comentarios });
         }
         const imprimibles = this.imprimibles.generaImprimible(tablaOperacions, analisis);
         // mandar al angular ;D
-        return res.json({ tokens, errores, imprimibles, reportes });
+        return res.json({ tokens, errores, imprimibles, reportes, comentarios });
 
     } catch (error) {
         console.error("Error en /analisis-lexico:", error); // Registro detallado en la consola

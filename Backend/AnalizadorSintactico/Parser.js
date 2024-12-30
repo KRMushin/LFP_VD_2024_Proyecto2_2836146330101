@@ -151,7 +151,15 @@ class Parser {
     
     analizarOperaciones() {
         this.siguienteToken();
-        this.esperar("OPERADOR_ASIGNACION"); 
+        if (this.tokenActual()?.tipo !== "OPERADOR_ASIGNACION") {
+            this.registrarError("Se esperaba un operador de asignación");
+            return;
+        } 
+        this.esperar("OPERADOR_ASIGNACION");
+        if (this.tokenActual()?.tipo !== "SIMBOLO_DELIMITADOR") {
+            this.registrarError("Se esperaba un simbolo de delimitador");
+            return;
+        }
         this.esperar("SIMBOLO_DELIMITADOR" , "[");
         this.analizarArregloOperaciones(); 
     }

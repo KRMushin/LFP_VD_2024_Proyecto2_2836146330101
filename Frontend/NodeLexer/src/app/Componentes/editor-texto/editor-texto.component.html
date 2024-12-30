@@ -8,10 +8,12 @@
   <div class="text-center">
     <p class="mb-0 text-warning fw-bold">Tokens</p>
     <p class="mb-0">{{ tokens.length }}</p>
+    <button class="btn btn-info" (click)="mostrarTokensEnNuevaVentana()">Ver Tokens</button>
   </div>
   <div class="text-center">
     <p class="mb-0 text-danger fw-bold">Errores Léxicos</p>
     <p class="mb-0">{{ listaErrores.length }}</p>
+    <button class="btn btn-info" (click)="mostrarErroresEnNuevaVentana()">Ver Errores</button>
   </div>
   <div class="text-center">
     <p class="mb-0 text-info fw-bold">Errores Sintácticos (Operaciones)</p>
@@ -70,6 +72,16 @@
             - {{ imprimible }}
           </li>
         </ul>
+      <!-- </ng-container>
+        <h6 class="text-warning mb-2">Comentarios:</h6>
+        <ul class="list-unstyled m-0">
+          <li *ngFor="let Comentario of comentarios" class="text-light mb-1">
+            - {{ Comentario.lexema }}
+          </li>
+        </ul>
+      <ng-container > -->
+
+
       </ng-container>
 
       <ng-template #noImprimibles>

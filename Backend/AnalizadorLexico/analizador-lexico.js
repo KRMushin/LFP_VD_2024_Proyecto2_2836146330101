@@ -6,6 +6,7 @@ class AnalizadorLexico {
     constructor() {
 
         this.generadorTokens = new GeneradorTokens();
+        this.comentarios = [];
 
         this.estadosAceptacion = [
             'qPRESERVADA',
@@ -49,7 +50,6 @@ class AnalizadorLexico {
             const char = cadena[i].toLowerCase();
             // tabla de transiciones estatica
             const transiciones = TablaTransiciones.tablaDeTransiciones[estadoActual];
-
             if (!transiciones) {
                 estadoActual = "q0";
                 tokenActual = "";
@@ -75,8 +75,10 @@ class AnalizadorLexico {
                     tokenActual += cadena[i];
                     i++;
                 }
-                
-                tokens.push(this.generadorTokens.creadorToken(siguienteEstado, tokenActual.trim(), fila, columna - 1));
+                tokens.push(
+                    this.generadorTokens.creadorToken(siguienteEstado, tokenActual.trim(), fila, columna - 1)
+                );
+                // tokens.push();
                 estadoActual = "q0";
                 tokenActual = "";
                 fila++;
@@ -112,10 +114,12 @@ class AnalizadorLexico {
                 }
             
                 if (comentarioValido) {
+                    console.log(comentarioComplejo)
                     tokens.push(
                         this.generadorTokens.creadorToken('qCOCOMPLEJO',comentarioComplejo.trim(),filaEncontrado,columnaEncontrado)
                     );
                 } else {
+                    console.log(comentarioComplejo , 'error')
                     listaErrores.push(
                         this.generadorTokens.creadorTokenError(comentarioComplejo.trim(),filaEncontrado,columnaEncontrado,'qCOCOMPLEJO',"Comentario complejo sin cierre")
                     );

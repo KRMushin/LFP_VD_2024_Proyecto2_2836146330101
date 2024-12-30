@@ -27,7 +27,7 @@ Para ejecutar esta aplicación, asegúrese de cumplir con los siguientes requisi
 - **Procesador:** celeron , ryzen 3 o posteirores.
 - **Memoria RAM:** 2GB.
 - **Espacio en Disco:** 10 MB de espacio libre.
-- **Dependencias:** Node.js 14.x, Javascript, terminal
+- **Dependencias:** Node.js 14.x, Javascript, terminal, Angular cli, 
 
 ## Ejecutar el Programa ▶️
 Para ejecutar el programa debe de ingresar el siguiente comando en su carpeta raiz.

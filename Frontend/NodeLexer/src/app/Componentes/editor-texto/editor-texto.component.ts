@@ -22,6 +22,7 @@ export class EditorTextoComponent {
   erroresSintacticos: any[] = [];
   erroresOperaciones: any[] = [];
   erroresSintacticosConfigs: any[] = [];
+  comentarios: any[] = [];
 
   json: any = {};
 
@@ -49,7 +50,8 @@ export class EditorTextoComponent {
         }
         this.imprimibles = data.imprimibles || [];
         this.errores = data.errores || {};
-
+        this.comentarios = data.comentarios || [];
+        
         if (this.errores) {
           this.listaErrores = this.errores.listaErrores || [];
           this.erroresSintacticos = this.errores.erroresSintacticos || [];
@@ -62,12 +64,6 @@ export class EditorTextoComponent {
       },
     );
   }
-
-
-
-
-
-
 
   /*
     Area de actualizacion de la fila y columna
@@ -164,4 +160,223 @@ export class EditorTextoComponent {
       this.columna = 1;
     }
   }
-}
+
+  /*
+    METODOS PARA ABRIR LOS REPORTES EN OTRA VENTANA 
+  */
+      //TOKEN
+      mostrarTokensEnNuevaVentana() {
+        if (!this.tokens || this.tokens.length === 0) {
+          alert('No hay tokens disponibles para mostrar.');
+          return;
+        }
+        const nuevaVentana = window.open('', '_blank', 'width=800,height=600');
+      
+        if (nuevaVentana) {
+          const contenidoHTML = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tokens Analizados</title>
+            <style>
+              body {
+                font-family: 'Fira Code', monospace;
+                padding: 20px;
+                background-color: #1e1e1e;
+                color: #ffffff;
+              }
+              h1 {
+                text-align: center;
+                color: #4caf50;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background-color: #2e2e2e;
+                color: #ffffff;
+              }
+              th, td {
+                border: 1px solid #444;
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #4caf50;
+                color: #ffffff;
+              }
+              tr:nth-child(even) {
+                background-color: #3a3a3a;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Tokens Analizados</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Lexema</th>
+                  <th>Fila</th>
+                  <th>Columna</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.tokens
+                  .map(
+                    token => `
+                      <tr>
+                        <td>${token.tipo || 'N/A'}</td>
+                        <td>${token.lexema || 'N/A'}</td>
+                        <td>${token.fila || 'N/A'}</td>
+                        <td>${token.columna || 'N/A'}</td>
+                      </tr>
+                    `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </body>
+          </html>
+        `;
+          nuevaVentana.document.open();
+          nuevaVentana.document.write(contenidoHTML);
+          nuevaVentana.document.close();
+        } else {
+          alert('No se pudo abrir una nueva ventana. Verifica que los pop-ups no estén bloqueados.');
+        }
+      }
+
+      mostrarErroresEnNuevaVentana() {
+        if (!this.tokens || this.tokens.length === 0) {
+          alert('No hay Errores de ningun tipo.');
+          return;
+        }
+        const nuevaVentana = window.open('', '_blank', 'width=800,height=600');
+      
+        if (nuevaVentana) {
+          const contenidoHTML = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tokens y Errores</title>
+            <style>
+              body {
+                font-family: 'Fira Code', monospace;
+                padding: 20px;
+                background-color: #1e1e1e;
+                color: #ffffff;
+              }
+              h1 {
+                text-align: center;
+                color: #4caf50;
+              }
+              h2 {
+                color: #ff9800;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background-color: #2e2e2e;
+                color: #ffffff;
+              }
+              th, td {
+                border: 1px solid #444;
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #4caf50;
+                color: #ffffff;
+              }
+              tr:nth-child(even) {
+                background-color: #3a3a3a;
+              }
+            </style>
+          </head>
+          <body>
+            <h2>Errores Léxicos</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo Error</th>
+                  <th>Carácter Error</th>
+                  <th>Fila</th>
+                  <th>Columna</th>
+                  <th>AFD Informe</th>
+                  <th>Lexema</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.listaErrores
+                  .map(
+                    error => `
+                      <tr>
+                        <td>${error.tipo || 'N/A'}</td>
+                        <td>${error.caracterError || 'N/A'}</td>
+                        <td>${error.fila || 'N/A'}</td>
+                        <td>${error.columna || 'N/A'}</td>
+                        <td>${error.estadoError || 'N/A'}</td>
+                        <td>${error.lexema || 'N/A'}</td>
+                      </tr>
+                    `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+      
+            <h2>Errores Sintacticos en operaciones</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Mensaje Error</th>
+                </tr>
+              </thead>
+                <tbody>
+                ${this.erroresSintacticos
+                  .map(
+                    error => `
+                      <tr>
+                        <td>${error.mensaje || 'N/A'}</td>
+                      </tr>
+                    `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+      
+            </body>
+            <h2>Errores Sintacticos en Configuraciones </h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Error Mensaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.erroresSintacticosConfigs
+                  .map(
+                    error => `
+                      <tr>
+                        <td>${error.mensaje || 'N/A'}</td>
+                      </tr>
+                    `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </html>
+        `;
+          nuevaVentana.document.open();
+          nuevaVentana.document.write(contenidoHTML);
+          nuevaVentana.document.close();
+        } else {
+          alert('No se pudo abrir una nueva ventana. Verifica que los pop-ups no estén bloqueados.');
+        }
+      }
+  }
